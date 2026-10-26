@@ -1,0 +1,67 @@
+{
+  "name": "dsh-pstack",
+  "version": "0.15.32",
+  "description": "if you want to go fast, go deep first. pstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence.",
+  "author": {
+    "name": "Lauren Tan"
+  },
+  "homepage": "https://github.com/pstack-ports/dsh-pstack",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pstack-ports/dsh-pstack.git"
+  },
+  "license": "MIT",
+  "icon": "./assets/logo.png",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "lib",
+    ".agents",
+    "docs",
+    "automations",
+    "assets",
+    "scripts",
+    "cordis.patch.yml",
+    "plugin.json",
+    "AGENTS.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "pstack",
+    "poteto-mode",
+    "workflow",
+    "principles",
+    "agent-style",
+    "subagents",
+    "unslop"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "test": "node scripts/validate.mjs",
+    "test:scripts": "node --test .agents/skills/*/scripts/test/*.test.mjs",
+    "check": "npm test && npm run test:scripts"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "~3.18.5",
+    "yaml": "^2.4.2"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-skill": "^0.2.1-rc.2"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

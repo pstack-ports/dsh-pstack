@@ -1,0 +1,16 @@
+# dsh-pstack profile bundle patch.
+#
+# Declared by package.json `dsh.bundle.patch`; applied when this package is in a
+# profile's `dsh.profile.bundles` list. The row registers the pstack skill
+# provider, which serves every skill under `.agents/skills/` in this package.
+#
+# The `/` menu, the `skill` tool, and the model catalog already ship with DSH.
+# Override the provider name from your own profile patch when it collides:
+#
+#   - id: pstack
+#     config:
+#       providerName: pstack-local
+
+- insert:
+    - id: pstack
+      name: 'dsh-pstack'

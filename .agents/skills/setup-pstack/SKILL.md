@@ -1,78 +1,90 @@
 ---
 name: setup-pstack
-description: Configure which models pstack uses per role and at what reasoning budget. Detects your available models and writes an always-applied rule that overrides the skill defaults. Use for /setup-pstack, "configure pstack models", "pstack budget", or changing pstack's model choices.
+description: Configure pstack's per-role model routes and reasoning budgets for DSH, plus the delegation depth a multi-agent run needs. Detects the routes DSH authorizes, writes ~/.agents/pstack-models.md, and checks the Subagent settings. Use for /setup-pstack, "configure pstack models", "pstack budget", or changing pstack's model choices.
 ---
 
 # Setup pstack
 
-Write `~/.cursor/rules/pstack-models.mdc`, an always-applied rule that sets pstack's model per role.
+Write `~/.agents/pstack-models.md`, the file every pstack skill reads before it chooses a subagent route. DSH does not auto-apply this file, so skills read it with the `read` tool when it exists.
 
 ## Steps
 
-### 1. Detect available models
+### 1. Detect the routes DSH allows
 
-Enumerate the model slugs you can pass to a `Task` subagent in this session. That is the dependable source. If Cursor also exposes a models API or CLI that lists the user's entitled models, prefer it for completeness. If you cannot detect any, ask the user to paste the slugs they have access to. Never write a real slug you have not confirmed is available. The aliases `inherit-parent` and `auto` are always valid even though they are not detected slugs.
+DSH only lets a subagent pick a model when the user turns on model selection in **Plugins → Subagent → models agents may choose**, and adds exact provider/model routes there. Check for the `list_subagent_models` tool. If it exists:
+
+1. Call it with no arguments to list providers.
+2. Call it with each provider to list that provider's models and reasoning efforts.
+3. Keep only routes it returns. Treat the returned provider ids, model ids, and effort ids as the only valid values.
+
+If `list_subagent_models` is missing, model selection is off for this session. Tell the user how to turn it on, then offer two choices: enable it and rerun this step, or continue with every role on `inherit` (the parent model). Do not invent route ids.
+
+The alias `inherit` is always valid and means "run this role on the parent chat model and pass no route fields."
 
 ### 2. Load current state
 
-The default role-to-model mapping is the rule shape shown in step 5 below. If `~/.cursor/rules/pstack-models.mdc` already exists, read it and treat its `# budget` line and its role values as the current choices. Otherwise start from those defaults. A line whose role is not in step 5, such as `how critics`, is from a retired role. Drop it.
+The default role table is step 5's shape. If `~/.agents/pstack-models.md` exists, read it and treat its `# budget` line and its role values as the current choices. Otherwise start from the defaults. A line whose role is not in step 5, such as `how critics`, is from a retired role. Drop it.
 
 ### 3. Budget, map, and confirm
 
-**(a) Ask for a budget.** Prefer AskQuestion over free text. Offer these four options with these exact labels, and name the current budget when the rule records one. With no rule, say that `large` matches the skill defaults.
+**(a) Ask for a budget.** Use `ask_user_question` with these four options. Name the current budget when the file records one. With no file, say `large` is the default.
 
-- `unlimited — max reasoning`
-- `large — xhigh reasoning`
-- `medium — high reasoning`
-- `small — medium reasoning`
+- `unlimited - highest reasoning effort`
+- `large - high reasoning effort`
+- `medium - medium reasoning effort`
+- `small - low reasoning effort`
 
-**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by family, list, or alias (`inherit-parent`, `auto`). `unlimited`, `large`, `medium`, and `small` set the effort token of every real slug, panel entries included, to `max`, `xhigh`, `high`, or `medium`. The effort token is the last token, or the one before a trailing `fast`, on the ladder `max` > `xhigh` > `high` > `medium` > `low`. If the result is not a detected slug, use the same family's detected slug with the highest effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. So `unlimited` turns `claude-opus-5-5-xhigh` into `claude-opus-5-5-max`. Grok slugs top out at `xhigh`, so under `unlimited` the fallback puts Grok at `xhigh` and keeps `grok-4.7-xhigh-fast` as it is. `large` keeps both defaults. `small` turns them into `claude-opus-5-5-medium` and `grok-4.7-medium-fast`.
+**(b) Apply it.** Set the effort token of every non-`inherit` route to the highest available effort at or below the budget target. Effort ladders differ per model, so use the ids `list_subagent_models` reports for that exact route. If the route has no matching effort, use its nearest lower effort. If the route has no efforts at all, leave it bare. `inherit` does not change.
 
-**(c) Show the roles and confirm.** Show every role with its model, marking any real slug not in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat model, which is how Auto users stay on Auto) as the options. Prefer AskQuestion over free text. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena selects one value from it whose model family differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
+**(c) Pick two base routes.** Ask which detected route code delegates should use and which route judgment and prose should use. Offer `inherit` and every detected route. The defaults are `inherit` for both, which means "let the parent model do it". Panels use the two base routes as their starting seats.
 
-### 4. Validate
+**(d) Show the roles and confirm.** Show every role with its route or list of routes. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles. For panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) the value is a list, and one subagent runs per entry, so the list length sets the count. `arena cross-judge pool` is also a list, and Arena selects one value from it that differs from the parent's route when possible. `swarm workers` is the default route for every worker unless a race or comparison assigns another route per arm.
 
-Every real slug written must be in the detected set. `inherit-parent` and `auto` always pass. If a chosen real slug is not available, stop and ask again.
+### 4. Check the delegation limits
+
+Open **Plugins → Subagent** and tell the user the two settings that decide whether pstack's larger workflows can run:
+
+- `maxDepth` defaults to `1`. `/poteto-mode` delegates one level, which fits. `/orchestrate` nests a coordinator, sub-coordinators, and workers to depth 3. Raise it to at least 3 before an orchestrate run.
+- `maxActiveSubagents` defaults to `8`. A swarm, autopilot queue, or orchestrate run often needs more live children. Raise it to the size of the run you expect.
+
+Do not change these yourself. Report the current values if the settings page shows them, and say which runs need a change.
 
 ### 5. Write the rule
 
-Write `~/.cursor/rules/pstack-models.mdc` with `alwaysApply: true`, a `# budget` line with the chosen label and its target effort, and one line per role, using the same labels poteto-mode uses. Overwrite the whole file so re-runs stay idempotent. Shape:
+Write `~/.agents/pstack-models.md` with a `# budget` line, a short format note, and one line per role, using the same labels poteto-mode uses. Overwrite the whole file so re-runs stay idempotent. Shape:
 
 ```
----
-description: pstack per-role model choices (overrides skill defaults)
-alwaysApply: true
----
-# pstack model configuration. One line per role. Delete a line to fall back to the skill default.
-# `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit Task `model`). Alias entries in a panel list still count toward its fan-out.
-# budget: large (xhigh)
-feature, refactoring: grok-4.7-xhigh-fast
-bug-fix: grok-4.7-xhigh-fast
-perf-issue: grok-4.7-xhigh-fast
-hillclimb: grok-4.7-xhigh-fast
-judgment and prose: claude-opus-5-5-xhigh
-hardest tasks: claude-opus-5-5-xhigh
-how explorer: grok-4.7-xhigh-fast
-how explainer: claude-opus-5-5-xhigh
-why investigators: grok-4.7-xhigh-fast
-why synthesizer: claude-opus-5-5-xhigh
-reflect tooling: grok-4.7-xhigh-fast
-reflect judgment, divergent, synthesizer: claude-opus-5-5-xhigh
-arena runners: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
-arena cross-judge pool: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
-swarm workers: grok-4.7-xhigh-fast
-architect runners: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
-interrogate reviewers: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
+# pstack model configuration. One line per role. Delete a line to fall back to `inherit`.
+# Format: role: provider/model[@effort], or inherit. Panel roles are comma-separated lists.
+# DSH only applies a route when the subagent tool exposes provider, model, and reasoning_effort.
+# budget: large
+feature, refactoring: inherit
+bug-fix: inherit
+perf-issue: inherit
+hillclimb: inherit
+judgment and prose: inherit
+hardest tasks: inherit
+how explorer: inherit
+how explainer: inherit
+why investigators: inherit
+why synthesizer: inherit
+reflect tooling: inherit
+reflect judgment, divergent, synthesizer: inherit
+arena runners: inherit
+arena cross-judge pool: inherit
+swarm workers: inherit
+architect runners: inherit
+interrogate reviewers: inherit
 ```
 
 ### 6. Confirm
 
-Tell the user the rule was written and that it applies to new sessions. Re-running this skill updates it.
+Tell the user the rule was written. Say that pstack skills read it when they spawn subagents, that a new value applies on the next spawn, and that a missing file or a missing line means `inherit`. Re-running this skill updates it.
 
 ### 7. Offer a verification skill (optional)
 
-Check whether the project has a way to drive the real app for proof (a `verify-*` skill, or an existing harness). If not, offer once: "want a project-local verification skill, so agents can drive the app the way a user does and prove changes work? I can generate one with /create-verification-skill." On yes, invoke `/create-verification-skill` (resolves wherever pstack is installed: workspace, user, or plugin). On no, move on without pushing.
+Check whether the project has a way to drive the real app for proof (a `verify-*` skill, or an existing harness). If not, offer once: "want a project-local verification skill, so agents can drive the app the way a user does and prove changes work? I can generate one with /create-verification-skill." On yes, read `../create-verification-skill/SKILL.md` from this skill's directory and follow it. On no, move on without pushing.
 
 ### 8. Offer a formal verification skill (optional)
 
-Check whether the project already has a formal verification skill (a project skill that runs a model checker, a proof, or another verifier against the code). If not, offer once: "want a formal verification skill, so agents can prove a key property of your code holds in every case in scope, not only the cases tests reach? I can generate one with /create-formal-verification-skill." On yes, invoke `/create-formal-verification-skill` (resolves wherever pstack is installed: workspace, user, or plugin). On no, move on without pushing.
+Check whether the project already has a formal verification skill (a project skill that runs a model checker, a proof, or another verifier against the code). If not, offer once: "want a formal verification skill, so agents can prove a key property of your code holds in every case in scope, not only the cases tests reach? I can generate one with /create-formal-verification-skill." On yes, read `../create-formal-verification-skill/SKILL.md` from this skill's directory and follow it. On no, move on without pushing.

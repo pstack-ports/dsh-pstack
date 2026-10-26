@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: Validate DSH bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install validation dependencies
+        run: npm ci --omit=peer
+
+      - name: Validate skills, links, and bundle manifest
+        run: npm test
+
+      - name: Check bundle entry points
+        run: |
+          node --check lib/index.js
+          node --check lib/parse.js
+          node --check scripts/validate.mjs
+
+      - name: Check shell scripts
+        run: |
+          bash -n .agents/skills/poteto-mode/scripts/worktree-audit.sh
+          bash -n .agents/skills/poteto-mode/scripts/session-log.sh
+          bash -n .agents/skills/show-me-your-work/scripts/log.sh
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install orchestration dependencies
+        working-directory: .agents/skills/poteto-mode/scripts
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck orchestration scripts
+        working-directory: .agents/skills/poteto-mode/scripts
+        run: bun run typecheck
+
+      - name: Run orchestration tests
+        working-directory: .agents/skills/poteto-mode/scripts
+        env:
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: commit.gpgsign
+          GIT_CONFIG_VALUE_0: "false"
+        run: bun run test
+
+      - name: Pack the bundle
+        run: |
+          rm -rf .agents/skills/poteto-mode/scripts/node_modules
+          npm pack --dry-run
+
+  statechart:
+    name: Statechart integration
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run statechart tests
+        run: node --test .agents/skills/statechart/scripts/test/statechart.test.mjs

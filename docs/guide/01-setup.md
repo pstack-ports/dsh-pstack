@@ -1,20 +1,28 @@
 # Set up pstack
 
-In this page you install the plugin, pick which models pstack uses, and run your first task. Setup is one command plus a short conversation.
+In this page you install the bundle, pick which routes pstack uses, and run your first task. Setup is one command plus a short conversation.
 
-## Install the plugin
+## Install the bundle
 
-In a Cursor chat, run:
+From a checkout, add it to the profile you use:
 
-```text
-/add-plugin pstack
+```bash
+dsh plugin --profile web add /absolute/path/to/dsh-pstack
+dsh --profile web
 ```
 
-Cursor confirms the plugin is installed.
+From GitHub:
 
-In Claude Code, run `/plugin marketplace add cursor/plugins`, then `/plugin install pstack@cursor-plugins`. Claude Code prefixes plugin commands, so each command in this guide takes a `pstack:` prefix there, such as `/pstack:setup-pstack`, which writes its model rule to `~/.claude/rules/pstack-models.md`. The [Claude Code adapter](../harness/claude-code.md) covers the other differences.
+```bash
+dsh plugin --profile web add "github:pstack-ports/dsh-pstack"
+dsh --profile web
+```
 
-## Pick your models
+`dsh plugin add` edits the profile and installs the package. Restart the profile to load the bundle. `dsh-pstack` appears under Settings → Plugins, and the pstack skills appear in the `/` menu.
+
+If you only want the skills, DSH also discovers `<project>/.agents/skills` and `~/.agents/skills`. Open this repository as the project, or link its skill directories into one of those roots. The [DSH adapter](../harness/dsh.md) covers the install shapes.
+
+## Pick your routes
 
 Run:
 
@@ -22,32 +30,32 @@ Run:
 /setup-pstack
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes `~/.cursor/rules/pstack-models.mdc`, a small rule every pstack skill reads.
+DSH only lets a subagent pick a model when you turn on **Plugins → Subagent → models agents may choose** and add exact provider/model routes. [`/setup-pstack`](../../.agents/skills/setup-pstack/SKILL.md) checks for the `list_subagent_models` tool, reads the allowed routes, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and writes `~/.agents/pstack-models.md`. Every pstack skill reads that file when it spawns a subagent.
 
-The defaults run at `xhigh` reasoning, the same as the `large` budget. `unlimited` lifts each model to its highest tier, up to `max`. Opus goes to `max`. Grok tops out at `xhigh`, so it stays there. `medium` and `small` lower the reasoning and spend fewer tokens.
+With model selection off, every role uses `inherit`, which means the child keeps the parent model. That still gives you independent contexts and the full workflow. Turn model selection on when you want a review panel or a code delegate on a different route.
 
-You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose model differs from the default. When a default changes, a rule written before the change still pins the old default, so delete those role lines, or delete the file, then run `/setup-pstack` again.
+The budget sets the starting effort. `unlimited` picks the highest effort the route advertises, `large` the next step down, and `medium` and `small` lower it further. The exact effort ids come from `list_subagent_models` for that route.
 
-You might be wondering what happens if you use Auto. Set a role to `inherit-parent` or `auto` and pstack omits the subagent `model` field, so the subagent inherits your parent chat model. Both values mean the same thing, and neither is a model slug. For a panel role the value is a list, and one subagent runs per entry, so the list length sets the panel size. Setup also configures `swarm workers`, the default model for every `/swarm` worker unless a race names a model for each arm.
+You only override what you care about. A role with no line in the file keeps `inherit`. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose route differs from `inherit`.
 
 ## Accept the verification offers, or don't
 
-At the end of setup, `/setup-pstack` looks for a way to prove app behavior in your project, either a `verify-*` skill or an existing harness. If it finds neither, it offers once to generate one with [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md).
+At the end of setup, `/setup-pstack` looks for a way to prove app behavior in your project, either a `verify-*` skill or an existing harness. If it finds neither, it offers once to generate one with [`/create-verification-skill`](../../.agents/skills/create-verification-skill/SKILL.md).
 
-Say yes and it writes `.cursor/skills/verify-<app>/`, a project-local skill that teaches agents to drive your app the way a user does. It proves the skill works once before handing it over. Say no and setup moves on. You can run `/create-verification-skill` yourself any time. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers it in depth.
+Say yes and it writes `.agents/skills/verify-<app>/`, a project-local skill that teaches agents to drive your app the way a user does. It proves the skill works once before handing it over. Say no and setup moves on. You can run `/create-verification-skill` yourself any time. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers it in depth.
 
 If you're new to pstack, say yes. An agent that can check its own work keeps going until the check passes. An agent that can't hands every result back to you to check by hand. Of everything in this guide, the verification skill pays off the most.
 
-Then setup offers once to generate a formal verification skill with [`/create-formal-verification-skill`](../../skills/create-formal-verification-skill/SKILL.md), unless the project already has one. Tests check the cases someone thought to write. A formal verification skill checks one key property of your code, such as "a job never runs twice at once", in every case within a stated scope. Say yes when your code has concurrency, retries, a state machine, or a parser, where a bug is costly and tests rarely reach the case that breaks. Otherwise say no, and run it later if that changes. [Verify and ship](./06-verify-and-ship.md#prove-a-property-with-a-formal-verification-skill) covers it.
+Then setup offers once to generate a formal verification skill with [`/create-formal-verification-skill`](../../.agents/skills/create-formal-verification-skill/SKILL.md), unless the project already has one. Tests check the cases someone thought to write. A formal verification skill checks one key property of your code, such as "a job never runs twice at once", in every case within a stated scope. Say yes when your code has concurrency, retries, a state machine, or a parser, where a bug is costly and tests rarely reach the case that breaks. Otherwise say no, and run it later if that changes. [Verify and ship](./06-verify-and-ship.md#prove-a-property-with-a-formal-verification-skill) covers it.
 
-After setup, start a new chat. The model rule applies to new sessions.
+After setup, start a new chat. The route file is read on the next spawn, and the Subagent depth and capacity settings apply to new delegations.
 
 ## Keep the cost in check
 
 pstack spends extra tokens on subagents and review panels. That's the price of the rigor. To spend fewer:
 
-- Rerun `/setup-pstack` and pick a smaller reasoning budget or cheaper models. A strong model in the main chat with cheaper, faster models in the code roles is a good split.
-- Set a role to `auto` or `inherit-parent` so it runs on the chat's own model.
+- Rerun `/setup-pstack` and pick a smaller reasoning budget or cheaper routes. A strong model in the main chat with cheaper, faster routes in the code roles is a good split.
+- Set a role to `inherit` so it runs on the chat's own model.
 - Shorten a panel list. Each entry runs one subagent.
 - Save `/poteto-mode` for work that needs rigor. A small, obvious edit doesn't.
 
@@ -61,6 +69,6 @@ Pick something real but small, and describe it the way you'd describe it to a co
 
 Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
 
-From here you can type normal follow-ups. To keep `/poteto-mode` on for the whole chat, pick it from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) instead of Enter. That makes it a [Custom Mode](https://cursor.com/docs/skills#using-a-skill-as-a-custom-mode), which stays in context on every turn until you exit it. Custom Modes are available in the Agents Window and the CLI. Plain Enter attaches the skill to one message, and it fades as the chat moves on.
+From here you can type normal follow-ups. DSH attaches a skill to one message, so pick `/poteto-mode` again when you start a new task. For a long run that should keep going without new messages, create a DSH goal with `create_goal` and let the agent work toward the predicate.
 
 Next: [Route work through `/poteto-mode`](./02-poteto-mode.md).
