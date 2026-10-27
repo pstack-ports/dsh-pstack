@@ -45,6 +45,7 @@ jobs:
           node --check lib/index.js
           node --check lib/parse.js
           node --check scripts/validate.mjs
+          node --check .github/prove-dsh-profile.mjs
 
       - name: Check shell scripts
         run: |
@@ -93,3 +94,47 @@ jobs:
 
       - name: Run statechart tests
         run: node --test .agents/skills/statechart/scripts/test/statechart.test.mjs
+
+  harness:
+    name: Mount bundle in DSH
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install bundle dependencies
+        run: npm ci --omit=peer
+
+      - name: Install pnpm and the latest DSH
+        run: |
+          set -euo pipefail
+          prefix="${RUNNER_TEMP}/dsh-prefix"
+          # npm dist-tag latest trails next. @next is the newest published runtime.
+          npm install -g --prefix "$prefix" pnpm@10 @deepseek-ai/dsh@next
+          echo "$prefix/bin" >> "$GITHUB_PATH"
+          "$prefix/bin/dsh" --version
+          "$prefix/bin/pnpm" --version
+
+      - name: Mount the checkout and list pstack skills
+        env:
+          DSH_HOME: ${{ runner.temp }}/dsh-home
+          DSH_PROFILE: ci
+        run: |
+          set -euo pipefail
+          mkdir -p "$DSH_HOME"
+          dsh plugin --profile ci add "$GITHUB_WORKSPACE"
+          dsh plugin --profile ci list --depth 0
+          dump="$DSH_HOME/dump-config.yml"
+          dsh --profile ci --dump-config > "$dump"
+          grep -F '# == dsh-pstack' "$dump"
+          grep -F -- '- id: pstack' "$dump"
+          grep -F 'name: dsh-pstack' "$dump"
+          node .github/prove-dsh-profile.mjs
