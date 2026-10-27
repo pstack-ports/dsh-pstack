@@ -39,7 +39,7 @@ When the route file is missing and it matters, ask whether the user wants to pic
 2. Run [`/setup-pstack`](../setup-pstack/SKILL.md). It detects the routes DSH allows, asks for a reasoning budget, writes `~/.agents/pstack-models.md`, and checks the Subagent depth and capacity settings. Then it offers once each to generate a verification skill and a formal verification skill for the project, unless the project already has one.
 3. Start a real task with `/poteto-mode`, a goal, and a check that can pass or fail.
 
-Installing drops the skills into the catalog but changes nothing until the user invokes one. Only `/setup-pstack` is model-invocable; the rest are user-invoked or reached by a skill that reads their files. The [README](../../../README.md) and [guide page 1](../../../docs/guide/01-setup.md) have the details. Offer to word their first prompt with them, per [`references/prompting.md`](references/prompting.md).
+Installing drops the skills into the catalog but changes nothing until the user invokes one. Only `/setup-pstack`, `/deslop`, `/control-cli`, and `/control-ui` are model-invocable; the rest are user-invoked or reached by a skill that reads their files. The [README](../../../README.md) and [guide page 1](../../../docs/guide/01-setup.md) have the details. Offer to word their first prompt with them, per [`references/prompting.md`](references/prompting.md).
 
 If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-pstack` and pick a smaller budget or cheaper routes. A role set to `inherit` runs on the chat's model, which saves tokens when the chat runs on a cheaper model. A shorter panel list runs fewer subagents, one for each entry. Save `/poteto-mode` for work that needs rigor.
 
@@ -109,7 +109,6 @@ Close calls:
 
 Not in pstack:
 
-- `/deslop`, `control-cli`, and `control-ui` are separate skills, not bundled with pstack. Install them if you want the full set; pstack names them only when the step needs them.
 - `/loop` and `/create-skill` have no direct DSH equivalent. Use a DSH goal (`create_goal`) for repeated work, and the authoring playbook for skill edits.
 - pstack has no `/orchestrate` skill. Orchestrate is a `/poteto-mode` playbook. If the slash menu shows `/orchestrate`, another plugin provides it.
 
@@ -138,7 +137,7 @@ Principles are one-rule skills that `/poteto-mode` reads and cites in its replie
 | A question got treated as the next step of the last task | Say "new task", or say the turn doesn't need the mode. |
 | A new model choice had no effect | The rule from `/setup-pstack` applies to new chats. Start one. |
 | Runs cost more than expected | See the cost paragraph under Get set up. |
-| A skill didn't load on its own | Only `/setup-pstack` loads from the user's words. The others load when the user types them or when `/poteto-mode` runs them, and it doesn't run every skill. |
+| A skill didn't load on its own | Only `/setup-pstack`, `/deslop`, `/control-cli`, and `/control-ui` load from the user's words. The others load when the user types them or when `/poteto-mode` runs them, and it doesn't run every skill. |
 | Parallel agents overwrote each other | Give each agent its own git worktree and pass its path as the child's `cwd`. DSH children share this machine. |
 | An overnight run moved but finished nothing | A DSH goal (`create_goal`) needs a check that can pass or fail, not a duration. See [guide page 7](../../../docs/guide/07-overnight.md). |
 | The reply claims success from a green build | Ask for the real command, flow, stored value, or profile. That's the prove-it-works principle. |
