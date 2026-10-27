@@ -30,7 +30,7 @@ dsh plugin --profile web add "github:pstack-ports/dsh-pstack"
 dsh --profile web
 ```
 
-`dsh plugin add` edits the profile and installs the package. restart the profile to load the bundle. after that, `dsh-pstack` appears under Settings → Plugins, and every pstack skill appears in the `/` menu. only `/setup-pstack` is model-invocable. the other skills are user-invoked, or read by `/poteto-mode` when a step needs one.
+`dsh plugin add` installs the package, and because it declares `dsh.bundle`, the same command appends `dsh-pstack` to the profile's bundle list. restart the profile to load the bundle. after that, `dsh-pstack` appears under Settings → Plugins, and every pstack skill appears in the `/` menu. only `/setup-pstack` is model-invocable. the other skills are user-invoked, or read by `/poteto-mode` when a step needs one.
 
 ### as project or user skills
 
@@ -44,6 +44,28 @@ done
 ```
 
 do not copy a parent directory that contains all the skills. DSH discovers a skill one level deep, as `<root>/<name>/SKILL.md`.
+
+## compatibility
+
+DSH mounts a bundle only when the plugin's `@deepseek-ai/dsh*` peer requirements match the running runtime. this package peers on `@deepseek-ai/dsh-skill@^0.2.1-rc.2`, so it loads on 0.2.1-rc.2 and later 0.2.x builds. on 0.3 and later it is skipped — the whole layer, not part of it — until a newer pstack ships:
+
+```
+dsh: skipping profile bundle "dsh-pstack": Plugin dsh-pstack@0.15.33 is incompatible with dsh 0.3.0: requirements {"@deepseek-ai/dsh-skill":"^0.2.1-rc.2"}. Running it may cause crashes or data loss. ...
+```
+
+the problem is the version pair, not the install. upgrade pstack, or approve that exact pair and restart:
+
+```bash
+dsh plugin --profile web allow-version dsh-pstack@0.15.33 --dsh-version 0.3.0 --accept-risk
+dsh plugin --profile web version-exemptions
+```
+
+`allow-version` stores the pair in `$DSH_HOME/profiles/<profile>/compatibility.json` and covers only that pair; the plugin manager offers the same grant in its UI.
+
+two things that look like bugs but are not:
+
+- DSH reads `package.json` — `dsh.bundle.patch`, `icon`, and `engines.dsh` when present. it does not read `plugin.json`; that manifest is for other agent-plugin ecosystems.
+- the `@deepseek-ai/*` peers come from the DSH installation, not from this package, so install it with `dsh plugin add`. a standalone `npm install` will not resolve them.
 
 ## get started
 
