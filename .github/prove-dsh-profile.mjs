@@ -2,7 +2,8 @@
 // Boot a profile that already ran `dsh plugin --profile <name> add <checkout>`
 // and fail unless dsh-pstack's skill provider lists the required skills.
 // There is no dsh flag that prints the skill catalog; `dsh --help` only offers
-// plugin (pnpm) and --dump-config. This uses the public profile-boot export.
+// plugin (pnpm) and --dump-config. imports dsh's internal profile-boot module
+// (lib/profile-boot.js and the nested dsh-app-boot file); tied to the pinned dsh version.
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, realpathSync } from 'node:fs'
 import { tmpdir } from 'node:os'
