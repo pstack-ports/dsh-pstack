@@ -1,6 +1,6 @@
 # dsh-pstack
 
-This repository is the DeepSeek Harness port of pstack 0.15.32. The skills are the upstream pstack content, adapted to DSH tool names, subagent semantics, and session logs.
+This repository is the DeepSeek Harness port of pstack 0.15.32. The skills are the upstream pstack content, adapted to DSH tool names, subagent semantics, and session logs. `deslop`, `control-cli`, and `control-ui` are the exception: copied verbatim from cursor-team-kit 1.2.0 (MIT, Eric Zakariasson), and not adapted.
 
 ## Layout
 

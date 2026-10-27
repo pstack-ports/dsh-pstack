@@ -147,6 +147,8 @@ DSH attaches a skill to one message. pick `/poteto-mode` at the start of each ne
 
 [`/poteto-mode`](./.agents/skills/poteto-mode/SKILL.md) runs most of these for you when a step needs them (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop`, `no-comments`, `technical-writing`, `tdd`, and the principles). the table below is for when you want one directly:
 
+pstack also bundles `deslop`, `control-cli`, and `control-ui` from [cursor-team-kit](https://github.com/cursor/plugins/tree/main/cursor-team-kit) `1.2.0` by Eric Zakariasson, copied verbatim under the MIT license.
+
 ```
 /how do we cancel runs? do we have an n+1 when we look up every run to cancel?
 ```
