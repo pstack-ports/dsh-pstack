@@ -30,7 +30,7 @@ dsh plugin --profile web add "github:pstack-ports/dsh-pstack"
 dsh --profile web
 ```
 
-`dsh plugin add` installs the package, and because it declares `dsh.bundle`, the same command appends `dsh-pstack` to the profile's bundle list. restart the profile to load the bundle. after that, `dsh-pstack` appears under Settings → Plugins, and every pstack skill appears in the `/` menu. only `/setup-pstack` is model-invocable. the other skills are user-invoked, or read by `/poteto-mode` when a step needs one.
+`dsh plugin add` installs the package, and because it declares `dsh.bundle`, the same command appends `dsh-pstack` to the profile's bundle list. restart the profile to load the bundle. after that, `dsh-pstack` appears under Settings → Plugins, and every pstack skill appears in the `/` menu. only `/setup-pstack`, `/deslop`, `/control-cli`, and `/control-ui` are model-invocable. the other skills are user-invoked, or read by `/poteto-mode` when a step needs one.
 
 ### as project or user skills
 
@@ -192,6 +192,9 @@ DSH attaches a skill to one message. pick `/poteto-mode` at the start of each ne
 | [`/maintain-formal-verification-skill`](./.agents/skills/maintain-formal-verification-skill/SKILL.md) | code your formal verification covers has changed since it was last checked. updates the model, harness, or properties to match the code, reruns, and says whether each failure is drift in the verification or a bug in the code. |
 | [`/statechart`](./.agents/skills/statechart/SKILL.md) | someone who owns the behavior needs to see it, not read a spec. draws what the user sees as a mermaid statechart generated from a tla+ model, marks each state works, still wrong, or fixed by your open pr, and draws each bug tlc finds as a numbered path. also turns an agreed chart into a tla+ skeleton, or audits the code against an existing spec. |
 | [`/unslop`](./.agents/skills/unslop/SKILL.md) | you're cleaning up writing. removes AI tells. |
+| [`/deslop`](./.agents/skills/deslop/SKILL.md) | remove AI-generated code slop and clean up code style. |
+| [`/control-cli`](./.agents/skills/control-cli/SKILL.md) | build or adapt a local harness to drive, inspect, and profile an interactive CLI or TUI. |
+| [`/control-ui`](./.agents/skills/control-ui/SKILL.md) | build or adapt a local browser/CDP harness to drive and inspect a web, IDE, or Electron UI. |
 | [`/bro`](./.agents/skills/bro/SKILL.md) | you want the last message restated in plain human language, no jargon. |
 | [`/technical-writing`](./.agents/skills/technical-writing/SKILL.md) | layered doc standard (Diátaxis + Google developer style + STE + Global English) for docs, RFCs, readmes, PR descriptions, commit messages. |
 
@@ -298,11 +301,7 @@ twenty-four short skills, one principle each. `poteto-mode` indexes them inline 
 
 a few things `poteto-mode` references but doesn't bundle:
 
-- `/deslop` and the `deslop` skill are a separate skill, not bundled here.
-- `control-cli` (for CLIs and TUIs) and `control-ui` (for browser, Electron, web) are separate skills too.
 - `/create-skill` and `/loop` have no direct DSH equivalent. use the [authoring playbook](./.agents/skills/poteto-mode/playbooks/authoring-a-skill.md) for skill edits, and a DSH goal (`create_goal`) for repeated work. DSH also has no built-in `/autopilot` that watches a PR. inside `poteto-mode`, pr-status requests go to the [babysit playbook](./.agents/skills/poteto-mode/playbooks/babysit.md).
-
-install those companion skills alongside pstack if you want the full set.
 
 ## why are there no planning skills?
 
