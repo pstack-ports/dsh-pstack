@@ -93,7 +93,10 @@ jobs:
           node-version: 22
 
       - name: Run statechart tests
-        run: node --test .agents/skills/statechart/scripts/test/statechart.test.mjs
+        working-directory: .agents/skills/statechart/scripts
+        run: |
+          npm install --no-save --ignore-scripts fast-check@4.5.3
+          node --disable-warning=ExperimentalWarning --test test/*.test.ts
 
   harness:
     name: Mount bundle in DSH

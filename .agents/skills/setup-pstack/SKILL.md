@@ -38,7 +38,7 @@ The default role table is step 5's shape. If `~/.agents/pstack-models.md` exists
 
 **(c) Pick two base routes.** Ask which detected route code delegates should use and which route judgment and prose should use. Offer `inherit` and every detected route. The defaults are `inherit` for both, which means "let the parent model do it". Panels use the two base routes as their starting seats.
 
-**(d) Show the roles and confirm.** Show every role with its route or list of routes. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles. For panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) the value is a list, and one subagent runs per entry, so the list length sets the count. `arena cross-judge pool` is also a list, and Arena selects one value from it that differs from the parent's route when possible. `swarm workers` is the default route for every worker unless a race or comparison assigns another route per arm.
+**(d) Show the roles and confirm.** Show every role with its route or list of routes. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles. For panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) the value is a list, and one subagent runs per entry, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena runs one judge. It tries only values whose route differs from the parent's, in list order, so order it by preference. An `inherit` value never judges. `swarm workers` is the default route for every worker unless a race or comparison assigns another route per arm.
 
 ### 4. Check the delegation limits
 

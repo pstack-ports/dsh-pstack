@@ -1,6 +1,6 @@
 # dsh-pstack
 
-This repository is the DeepSeek Harness port of pstack 0.15.32. The skills are the upstream pstack content, adapted to DSH tool names, subagent semantics, and session logs.
+This repository is the DeepSeek Harness port of pstack 0.15.36, pinned to https://github.com/cursor/plugins at c742dd61706fbacc1b95f1a20b7b988cf096ce6c. The skills are the upstream pstack content, adapted to DSH tool names, subagent semantics, and session logs.
 
 ## Layout
 
