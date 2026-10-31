@@ -116,12 +116,12 @@ jobs:
       - name: Install bundle dependencies
         run: npm ci --omit=peer
 
-      - name: Install pnpm and DSH 0.2.1-rc.4
+      - name: Install pnpm and DSH 0.2.1-rc.5
         run: |
           set -euo pipefail
           prefix="${RUNNER_TEMP}/dsh-prefix"
           # pinned to the runtime this proof was written against. bump it in its own pr.
-          npm install -g --prefix "$prefix" pnpm@10 @deepseek-ai/dsh@0.2.1-rc.4
+          npm install -g --prefix "$prefix" pnpm@10 @deepseek-ai/dsh@0.2.1-rc.5
           echo "$prefix/bin" >> "$GITHUB_PATH"
           "$prefix/bin/dsh" --version
           "$prefix/bin/pnpm" --version
