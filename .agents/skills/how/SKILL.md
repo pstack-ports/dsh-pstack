@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Every spawn is a fresh `subagent` with a read-only prompt: it must not modify files or remotes. Explorers use the `how explorer` role and explainers use `how explainer`. Read `~/.agents/pstack-models.md` when it exists and use the role's line, or `inherit` when the file or line is missing. If the `subagent` tool exposes `provider`, `model`, and `reasoning_effort`, pass the route and effort; otherwise omit them and the child inherits the parent model. Spawn one `subagent` per entry, all in one assistant message so they run concurrently. If DSH rejects a route, fall back to `inherit` and say so.
+Every spawn is a fresh `subagent` with a read-only prompt: it must not modify files or remotes. Explorers use the `how explorer` role and explainers use `how explainer`. Read `~/.agents/pstack-models.md` when it exists and use the role's line, or `inherit` when the file or line is missing. If the `subagent` tool exposes `provider`, `model`, and `reasoning_effort`, pass the route and effort; otherwise omit them and the child inherits the parent model. If DSH rejects a route, fall back to `inherit` and say so.
 
 ## 1. Assess complexity
 

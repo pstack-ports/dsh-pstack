@@ -4,7 +4,7 @@ Use this reference when the Babysit playbook (`../playbooks/babysit.md`) handles
 
 ## Decision rubric
 
-Classify each the review bot thread before acting:
+Classify each review-bot thread before acting:
 
 - `fix`: The comment identifies a plausible correctness, security, privacy, data loss, auth, billing, migration, idempotency, race, or shipped-behavior issue. Fix it in the lowest owning PR, then reply with the commit SHA and resolve the thread.
 - `dismiss`: The comment matches a documented low-risk noisy pattern, and the current code/context proves the concern does not need a code change. Reply with a short reason and resolve the thread.
@@ -33,7 +33,7 @@ Use `candidate` for one or two examples. Use `recurring` after multiple real dis
 ### Intentional UI or design-system visual changes
 
 - Confidence: candidate
-- Skip when: The PR description, screenshots, design review, or nearby code makes the visual change explicit, and the the review bot comment is only restating that a shared visual default changed.
+- Skip when: The PR description, screenshots, design review, or nearby code makes the visual change explicit, and the review-bot comment is only restating that a shared visual default changed.
 - Do not skip when: The comment points to accessibility, focus visibility, keyboard navigation, color contrast, or a component API contract that the PR did not intentionally change.
 - Example signal: Comments about focus outlines, button sizes, spacing, or shared component visual defaults where the owner replies "intentional" or "intended".
 
@@ -68,7 +68,7 @@ Use `candidate` for one or two examples. Use `recurring` after multiple real dis
 ### Self-withdrawn or explicit false-positive rule comments
 
 - Confidence: recurring
-- Skip when: The comment body or a later the review-bot reply explicitly says the finding is withdrawn, compliant, or a false positive, and the agent can verify the relevant rule locally.
+- Skip when: The comment body or a later review-bot reply explicitly says the finding is withdrawn, compliant, or a false positive, and the agent can verify the relevant rule locally.
 - Do not skip when: The only evidence is a human saying "false positive" on a high-risk issue without explanation.
 - Example signal: A file-naming rule comment whose body says the file is already compliant.
 

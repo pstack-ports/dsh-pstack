@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Investigate the motivation and intent behind code. The companion `how` skill answers what the code does and how it works. `why` answers what forces led to its shape.
 
-Read `~/.agents/pstack-models.md` when it exists. Investigators use the `why investigators` line and the synthesizer uses `why synthesizer`; a missing file or line means `inherit`. If the `subagent` tool exposes `provider`, `model`, and `reasoning_effort`, pass the route and effort; otherwise omit them and the child inherits the parent model. Spawn one `subagent` per entry, all in one assistant message so they run concurrently. If DSH rejects a route, fall back to `inherit` and say so. Pick the effort for the job per the Subagents section of the **poteto-mode** skill.
+Read `~/.agents/pstack-models.md` when it exists. Investigators use the `why investigators` line and the synthesizer uses `why synthesizer`; a missing file or line means `inherit`. If the `subagent` tool exposes `provider`, `model`, and `reasoning_effort`, pass the route and effort; otherwise omit them and the child inherits the parent model. If DSH rejects a route, fall back to `inherit` and say so. Pick the effort for the job per the Subagents section of the **poteto-mode** skill.
 
 Every spawn is a fresh `subagent`. DSH children inherit the parent's preset and MCP tools, which the investigators and the synthesizer's citation spot-checks need. Tell each child it must not write anything.
 
