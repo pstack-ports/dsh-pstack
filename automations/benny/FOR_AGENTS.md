@@ -50,7 +50,7 @@ i want two DSH workflows that work together in one slack issue channel.
 - budgets: `<polling, verdict wait, follow-up, repro, rejection, fix>`
 - optional bot token capability: `<none, file download, or editable operations status>`
 
-start from [`configuration.example.yaml`](./templates/configuration.example.yaml) and [`feature-map.example.md`](./.agents/skills/reproduce-and-fix-issues/references/feature-map.example.md). copy and fill them outside this pack, for example under `.agents/benny/`. keep secret values in a secret manager or environment.
+start from [`configuration.example.yaml`](./templates/configuration.example.yaml) and [`feature-map.example.md`](./skills/reproduce-and-fix-issues/references/feature-map.example.md). copy and fill them outside this pack, for example under `.agents/benny/`. keep secret values in a secret manager or environment.
 
 ## for the agent
 
