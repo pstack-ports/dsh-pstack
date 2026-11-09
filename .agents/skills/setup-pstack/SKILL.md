@@ -29,12 +29,12 @@ The default role table is step 5's shape. If `~/.agents/pstack-models.md` exists
 
 **(a) Ask for a budget.** Use `ask_user_question` with these four options. Name the current budget when the file records one. With no file, say `large` is the default.
 
-- `unlimited - highest reasoning effort`
-- `large - high reasoning effort`
-- `medium - medium reasoning effort`
-- `small - low reasoning effort`
+- `unlimited - the top reported effort`
+- `large - one step down`
+- `medium - two steps down`
+- `small - three steps down`
 
-**(b) Apply it.** Set the effort token of every non-`inherit` route to the highest available effort at or below the budget target. Effort ladders differ per model, so use the ids `list_subagent_models` reports for that exact route. If the route has no matching effort, use its nearest lower effort. If the route has no efforts at all, leave it bare. `inherit` does not change.
+**(b) Apply it.** Rank the efforts `list_subagent_models` reports for that exact route from highest to lowest. `unlimited` is the top reported effort, `large` is one step down, `medium` is two steps down, and `small` is three steps down. Set every non-`inherit` route's effort token to that rank. If the ladder is shorter than the step, use its lowest effort. If the route has no efforts at all, leave it bare. `inherit` does not change.
 
 **(c) Pick two base routes.** Ask which detected route code delegates should use and which route judgment and prose should use. Offer `inherit` and every detected route. The defaults are `inherit` for both, which means "let the parent model do it". Panels use the two base routes as their starting seats.
 

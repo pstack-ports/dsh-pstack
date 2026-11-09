@@ -9,14 +9,45 @@
 #                                  # search the newest n sessions, default 10
 #   session-log.sh --all           # with --list or --grep, search every project
 #
-# DSH stores each session as $DSH_HOME/sessions/<project-slug>/<session-id>/session*.jsonl.zstd.
-# The project slug is the cwd with its leading slash removed, every "/" replaced
-# by "-", wrapped in "--". Plain .jsonl logs are supported too.
+# DSH stores each session as $DSH_HOME/sessions/<projectKey>/<session-id>/session*.jsonl.zstd.
+# projectKey (@deepseek-ai/dsh-session-persistence-jsonl): separators (/ \ :)
+# become "-", runs collapse to one "-", a code unit outside [A-Za-z0-9._-]
+# or "~" becomes "~" plus 4 uppercase hex, leading hyphens are stripped
+# (empty becomes "root"), then cut at 251 chars and wrapped in "--".
+# /Users/you/My Projects/repo -> --Users-you-My~0020Projects-repo--.
+# Plain .jsonl logs are supported too.
 set -euo pipefail
 
 home="${DSH_HOME:-$HOME/.dsh}"
 sessions="$home/sessions"
-slug="--$(printf '%s' "${PWD#/}" | tr '/' '-')--"
+
+# Same directory name as dsh-session-persistence-jsonl projectKey.
+project_key() {
+	PROJECT_KEY_CWD="$1" node -e '
+const cwd = process.env.PROJECT_KEY_CWD ?? ""
+if (cwd.length === 0) throw new Error("empty cwd")
+let readable = ""
+let separatorRun = false
+for (let i = 0; i < cwd.length; i++) {
+  const code = cwd.charCodeAt(i)
+  const ch = String.fromCharCode(code)
+  if (ch === "/" || ch === "\\" || ch === ":") {
+    if (!separatorRun) readable += "-"
+    separatorRun = true
+  } else if (ch !== "~" && /^[A-Za-z0-9._-]$/.test(ch)) {
+    readable += ch
+    separatorRun = false
+  } else {
+    readable += "~" + code.toString(16).toUpperCase().padStart(4, "0")
+    separatorRun = false
+  }
+}
+const body = (readable.replace(/^-+/, "") || "root").slice(0, 251)
+process.stdout.write("--" + body + "--")
+'
+}
+
+slug="$(project_key "$PWD")"
 
 die() { printf 'session-log: %s\n' "$*" >&2; exit 2; }
 

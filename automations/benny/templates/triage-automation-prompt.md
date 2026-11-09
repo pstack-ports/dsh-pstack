@@ -1,6 +1,6 @@
 # Triage automation prompt
 
-> Source material for the copied setup workflow. Paraphrase this intent into a scheduled DSH job after `automate` confirms that the copied pack is committed in the repository where the automation will run.
+> Source material for the copied setup workflow. Paraphrase this intent into a scheduled DSH job after confirming that the copied pack is committed in the repository where the automation will run.
 
 Read and follow `.agents/automations/benny/skills/triage-issue-reports/SKILL.md` for this run.
 

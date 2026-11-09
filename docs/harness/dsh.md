@@ -76,7 +76,7 @@ DSH's setup skill differs from Cursor's in three ways:
 | `.agents/skills/`, `~/.agents/skills/` | `.agents/skills/` in the project, `~/.agents/skills/` for the user, `~/.dsh/skills/` for DSH-specific skills. |
 | `~/.cursor/plugins/`, `.cursor-plugin/plugin.json` | An installed bundle under the profile's `node_modules`, declared by `package.json` and `cordis.patch.yml`. |
 | `.cursor/rules/*.mdc`, always-applied rules | `AGENTS.md` files, which DSH loads automatically. The pstack route file is separate and read on demand. |
-| Transcripts in `~/.cursor/projects/<slug>/agent-transcripts/` | Session logs under `$DSH_HOME/sessions/<project-slug>/<session-id>/session*.jsonl.zstd`. Use `.agents/skills/poteto-mode/scripts/session-log.sh` to list, search, or decompress one. The project slug is the cwd with its leading slash removed, every `/` replaced by `-`, wrapped in `--`. |
+| Transcripts in `~/.cursor/projects/<slug>/agent-transcripts/` | Session logs under `$DSH_HOME/sessions/<projectKey>/<session-id>/session*.jsonl.zstd`. Use `.agents/skills/poteto-mode/scripts/session-log.sh` to list, search, or decompress one. The project key replaces separators (`/`, `\`, `:`) with `-`, collapses a run to one `-`, encodes a code unit outside `[A-Za-z0-9._-]` or `~` as `~` plus 4 uppercase hex, strips leading hyphens, cuts at 251 characters, and wraps the result in `--` (so `/Users/you/My Projects/repo` becomes `--Users-you-My~0020Projects-repo--`). |
 | `https://github.com/cursor/plugins/blob/main/pstack/<path>` | `https://github.com/pstack-ports/dsh-pstack/blob/main/<path>`. |
 
 ## Cursor-only features

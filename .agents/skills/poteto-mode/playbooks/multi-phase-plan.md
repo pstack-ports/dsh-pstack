@@ -75,7 +75,7 @@ Each live lane runs in its own git worktree on this machine, checked out at the 
 - [ ] <Deliver input only through the control skill's commands. Name the read-only diagnostics.>
 - [ ] Save every screenshot to `/tmp/swarm-<pr-id>/worker-<n>/<slug>.png` and return the paths with the report.
 
-## <Change as a verb phrase> (<PR id>)
+## <Task as a verb phrase> (<PR id>)
 
 **Depends on.** <PR id, or None.>
 
