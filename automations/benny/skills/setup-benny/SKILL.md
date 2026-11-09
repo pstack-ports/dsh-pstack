@@ -170,42 +170,10 @@ For each automation:
 2. Turn `FOR_AGENTS.md`, the finished Benny configuration, and the template intent into a complete natural-language request.
 3. Tell the live prompt to read and follow its exact committed operational file under `.agents/automations/benny/`.
 4. Use the stable repository-relative path, not a plugin source or cache path. Do not copy the operational file contents into the live prompt.
-5. Read and follow the built-in `automate` skill.
-6. Let `automate` discover Slack channels, the repository, and connected integrations.
-7. Let `automate` confirm that the copied pack and any referenced configuration files are committed in the same repository where the automation will run.
-8. Let `automate` show its draft table, obtain approval, ask readiness, and open the Automations editor.
-9. Finish the editor handoff for this automation before starting the next one.
 
-Give `automate` this complete triage intent, filled from configuration:
-
-- Name `benny-triage`.
-- Read and follow `.agents/automations/benny/skills/triage-issue-reports/SKILL.md` for every run.
-- Trigger on each new top-level report in the configured source Slack channel.
-- Read the triggering thread and reply only inside it.
-- Use the configured issue-tracker integration.
-- Classify, inspect evidence, trace cause, dedupe, and create only clear new bugs.
-- End one thread-only verdict with the configured `[benny:bug]`, `[benny:performance]`, or `[benny:other]` marker and optional tracker URL.
-- Never post a source-channel root message.
-
-After the triage editor handoff is complete, give `automate` this complete repro and fix intent:
-
-- Name `benny-reproduce`.
-- Read and follow `.agents/automations/benny/skills/reproduce-and-fix-issues/SKILL.md` for every run.
-- Trigger on the same new top-level reports in the configured source Slack channel.
-- Use the configured repository and default branch.
-- Read the source thread and reply only inside it.
-- Include pull request creation and the configured tracker, control-adapter, and feature-map requirements. Paraphrase mapped user paths and states unless `automate` confirms an eligible committed file in the same repository.
-- Wait for a trusted triage marker before acting.
-- Reproduce the exact symptom twice through the mapped real UI and capture evidence.
-- Verify an existing fix without authoring over it.
-- Attempt an optional bounded fix only after confirmed repro, then open a draft pull request when proof and checks pass.
-- Never post a source-channel root message.
-
-Do not duplicate `automate`'s Slack, repository, integration, completeness, authentication, draft-review, approval, readiness, or editor-handoff work.
+Create the job with `schedule_create` as Creation boundary describes. Finish this job before starting the next one.
 
 ### Existing automations
-
-The built-in `automate` skill is creation-only. Do not use it to search for, inspect, or update existing automations.
 
 Finish configuration, routing, control-adapter, and feature-map validation. Then give the user this concise editor checklist.
 

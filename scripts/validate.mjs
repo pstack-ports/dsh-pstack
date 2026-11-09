@@ -122,6 +122,8 @@ function checkLinks(file) {
   for (const match of raw.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/gu)) {
     const target = match[1]
     if (/^(?:[a-z][a-z0-9+.-]*:|#|\/\/)/iu.test(target)) continue
+    // synthesizer-prompt.md uses `(url)` as a citation placeholder, not a file.
+    if (target === 'url') continue
     const pathPart = decodeURIComponent(target.split('#')[0].split('?')[0])
     if (pathPart === '') continue
     const resolved = resolve(dirname(file), pathPart)

@@ -34,7 +34,7 @@ DSH only lets a subagent pick a model when you turn on **Plugins â†’ Subagent â†
 
 With model selection off, every role uses `inherit`, which means the child keeps the parent model. That still gives you independent contexts and the full workflow. Turn model selection on when you want a review panel or a code delegate on a different route.
 
-The budget sets the starting effort. `unlimited` picks the highest effort the route advertises, `large` the next step down, and `medium` and `small` lower it further. The exact effort ids come from `list_subagent_models` for that route.
+The budget sets the starting effort. `unlimited` is the top reported effort, `large` is one step down, `medium` is two steps down, and `small` is three steps down. The exact effort ids come from `list_subagent_models` for that route.
 
 You only override what you care about. A role with no line in the file keeps `inherit`. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose route differs from `inherit`.
 

@@ -69,8 +69,19 @@ elif raw=$(gh pr list --author "@me" --state all --limit 1000 \
 fi
 [ -s "$prs" ] || echo "[]" > "$prs"
 
-# DSH session logs: $DSH_HOME/sessions/<project-slug>/<session-id>/session*.jsonl.zstd.
+# DSH session logs: $DSH_HOME/sessions/<projectKey>/<session-id>/session*.jsonl or session*.jsonl.zstd.
 transcripts="${DSH_HOME:-$HOME/.dsh}/sessions"
+
+# Same reader as session-log.sh: zstd -dc for .zstd, cat otherwise.
+read_session_log() {
+	case "$1" in
+	*.zstd)
+		command -v zstd >/dev/null 2>&1 || return 1
+		zstd -dc "$1" 2>/dev/null
+		;;
+	*) cat "$1" ;;
+	esac
+}
 now=$(date +%s)
 
 echo "# base: $base"
@@ -110,10 +121,10 @@ git worktree list --porcelain | awk '/^worktree /{print $2}' | while read -r wt;
 	# Most recent DSH session whose log names this worktree. Match the path
 	# followed by "/" or a quote so glint-482 does not match glint-482-r37.
 	last="-"; last_ts=0
-	if [ -d "$transcripts" ] && command -v zstd >/dev/null 2>&1; then
-		f=$(find "$transcripts" -type f -name 'session*.jsonl.zstd' -mtime -14 2>/dev/null \
+	if [ -d "$transcripts" ]; then
+		f=$(find "$transcripts" -type f \( -name 'session*.jsonl' -o -name 'session*.jsonl.zstd' \) 2>/dev/null \
 			| while IFS= read -r log; do
-				if zstd -dc "$log" 2>/dev/null | grep -q -F -e "${wt}/" -e "${wt}\""; then
+				if read_session_log "$log" | grep -q -F -e "${wt}/" -e "${wt}\""; then
 					stat "${stat_fmt[@]}" "$log" 2>/dev/null
 				fi
 			done \

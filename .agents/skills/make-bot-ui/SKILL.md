@@ -41,7 +41,6 @@ const server = createServer(async (req, res) => {
     return
   }
   if (req.method !== 'POST' || req.url !== '/wake') return res.writeHead(404).end()
-  if (req.headers.authorization !== `Bearer ${KEY}`) return res.writeHead(401).end()
   let raw = ''
   for await (const chunk of req) raw += chunk
   let body
@@ -69,22 +68,19 @@ Keep these properties:
 
 ## 3. Write the page
 
-`index.html` sends `POST /wake` with `Authorization: Bearer <BOT_UI_KEY>` and a JSON body.
+`index.html` posts to this same-origin server at `POST /wake` with a JSON body and no key. Only the server holds `BOT_UI_KEY`.
 
 ```html
 <script>
-  const key = sessionStorage.getItem('bot-ui-key')
   async function wake(action, payload) {
     await fetch('/wake', {
       method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ action, payload }),
     })
   }
 </script>
 ```
-
-The key in `sessionStorage` is a UI action key, not the model credential. It never reaches `dsh headless`; the CLI uses the user's stored DSH credentials. If the user does not want a key in the browser at all, bind to `127.0.0.1` and use a local browser profile, or put Tailscale Serve in front with its own identity check. State the tradeoff before choosing.
 
 Never put a provider API key, a DSH credential, or a Tailscale auth key in the page.
 
@@ -105,7 +101,6 @@ Start the server in the background with `bash`, then probe once with a harmless 
 ```bash
 node server.mjs &
 curl -sS -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8787/wake \
-  -H "authorization: Bearer $BOT_UI_KEY" \
   -H 'content-type: application/json' \
   -d '{"action":"review","payload":{"probe":true}}'
 ```
@@ -121,7 +116,7 @@ If `tailscale status` shows an online node, read the hostname from `tailscale st
 - `http://<hostname>.<tailnet>.ts.net:<port>`
 - `http://<100.x.x.x>:<port>`
 
-Use HTTP. Do not add HTTPS unless the user asks. Bind the server to `0.0.0.0` only when the user accepts that anyone on the tailnet can reach the page, and keep the UI action key on.
+Use HTTP. Do not add HTTPS unless the user asks. Bind the server to `0.0.0.0` only when the user accepts that anyone on the tailnet can reach the page. The page still posts with no key.
 
 If Tailscale is not installed, install it:
 

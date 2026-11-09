@@ -53,8 +53,8 @@ Never edit a skill inside an installed bundle. Before approval, show its destina
 Follow each approved row's Routing exactly:
 
 - Trivial existing-skill edit (a one-line bullet, a tightened sentence, a stale fact corrected): the parent does it directly.
-- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): follow the **authoring-a-skill** playbook at `../poteto-mode/playbooks/authoring-a-skill.md` and run its draft / test / iterate loop.
-- `tune description: <skill path>` (the skill exists but didn't trigger when it should have): tune the frontmatter description with the same playbook's description guidance.
+- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): follow the steps in the **authoring-a-skill** playbook at `../poteto-mode/playbooks/authoring-a-skill.md`.
+- `tune description: <skill path>` (the skill exists but didn't trigger when it should have): follow that playbook's steps for the frontmatter description.
 - `new skill via authoring playbook: <kebab-name>`: create the skill with that playbook. Do not invent the shape ad hoc.
 
 Run `node scripts/validate.mjs` from the pstack repository on every touched pstack skill before declaring done. For another repo, validate its frontmatter and links by hand.
