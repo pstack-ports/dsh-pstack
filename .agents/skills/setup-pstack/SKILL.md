@@ -23,7 +23,15 @@ The alias `inherit` is always valid and means "run this role on the parent chat 
 
 ### 2. Load current state
 
-The default role table is step 5's shape. If `~/.agents/pstack-models.md` exists, read it and treat its `# budget` line and its role values as the current choices. Otherwise start from the defaults. A line whose role is not in step 5, such as `how critics`, is from a retired role. Drop it.
+The default role table is step 5's shape. If `~/.agents/pstack-models.md` exists, read it and treat its `# budget` line and its role values as the current choices. Otherwise start from the defaults. A line whose role is not in step 5, such as `how explorer` or `why investigators`, is from a retired role. Drop it.
+
+A file without the `# defaults: 2` line comes from an older setup. That setup wrote a line for every role, so some of its values are old defaults, not choices. The old default on every role was `inherit`. Before step 3, replace these values:
+
+- Drop every retired-role line, including `how explorer`, `how explainer`, `why investigators`, and `why synthesizer`.
+- A value of `inherit` on a role that step 5 still lists is the old default. The new default is still `inherit`, so leave it.
+- A panel value (`arena runners`, `arena cross-judge pool`, `architect runners`, `interrogate reviewers`) that is exactly `inherit` is the old one-seat default. Leave it unless step 3 picks panel routes. A panel list that names any real route is the user's choice and stays.
+
+Every other value is the user's choice and stays. Tell the user which retired lines you dropped and which values you replaced. To drop a pin this step does not recognize, delete that role's line or the file first.
 
 ### 3. Budget, map, and confirm
 
@@ -38,7 +46,7 @@ The default role table is step 5's shape. If `~/.agents/pstack-models.md` exists
 
 **(c) Pick two base routes.** Ask which detected route code delegates should use and which route judgment and prose should use. Offer `inherit` and every detected route. The defaults are `inherit` for both, which means "let the parent model do it". Panels use the two base routes as their starting seats.
 
-**(d) Show the roles and confirm.** Show every role with its route or list of routes. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles. For panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) the value is a list, and one subagent runs per entry, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena runs one judge. It tries only values whose route differs from the parent's, in list order, so order it by preference. An `inherit` value never judges. `swarm workers` is the default route for every worker unless a race or comparison assigns another route per arm.
+**(d) Show the roles and confirm.** Show every role with its route or list of routes. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles. For panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) the value is a list, and one subagent runs per entry, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena runs one judge. It tries only values from a vendor other than the parent's, in list order, so order it by preference. A vendor is the route's provider. An `inherit` value never judges. `swarm workers` is the default route for every worker unless a race or comparison assigns another route per arm.
 
 ### 4. Check the delegation limits
 
@@ -51,12 +59,13 @@ Do not change these yourself. Report the current values if the settings page sho
 
 ### 5. Write the rule
 
-Write `~/.agents/pstack-models.md` with a `# budget` line, a short format note, and one line per role, using the same labels poteto-mode uses. Overwrite the whole file so re-runs stay idempotent. Shape:
+Write `~/.agents/pstack-models.md` with a `# defaults: 2` line, a `# budget` line, a short format note, and one line per role, using the same labels poteto-mode uses. Overwrite the whole file so re-runs stay idempotent. Shape:
 
 ```
 # pstack model configuration. One line per role. Delete a line to fall back to `inherit`.
 # Format: role: provider/model[@effort], or inherit. Panel roles are comma-separated lists.
 # DSH only applies a route when the subagent tool exposes provider, model, and reasoning_effort.
+# defaults: 2
 # budget: large
 feature, refactoring: inherit
 bug-fix: inherit
@@ -64,10 +73,6 @@ perf-issue: inherit
 hillclimb: inherit
 judgment and prose: inherit
 hardest tasks: inherit
-how explorer: inherit
-how explainer: inherit
-why investigators: inherit
-why synthesizer: inherit
 reflect tooling: inherit
 reflect judgment, divergent, synthesizer: inherit
 arena runners: inherit

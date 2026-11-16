@@ -36,7 +36,7 @@ With model selection off, every role uses `inherit`, which means the child keeps
 
 The budget sets the starting effort. `unlimited` is the top reported effort, `large` is one step down, `medium` is two steps down, and `small` is three steps down. The exact effort ids come from `list_subagent_models` for that route.
 
-You only override what you care about. A role with no line in the file keeps `inherit`. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose route differs from `inherit`.
+You only override what you care about. A role with no line in the file keeps `inherit`. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose route differs from `inherit`. When a default changes, a file written before the change still pins the old route until you run `/setup-pstack` again. That run replaces the old defaults it recognizes, tells you which, and keeps your other choices. To drop a pin it does not recognize, delete that role's line or the file first.
 
 ## Accept the verification offers, or don't
 
