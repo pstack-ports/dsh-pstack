@@ -50,13 +50,13 @@ do not copy a parent directory that contains all the skills. DSH discovers a ski
 DSH mounts a bundle only when the plugin's `@deepseek-ai/dsh*` peer requirements match the running runtime. this package peers on `@deepseek-ai/dsh-skill@^0.2.1-rc.2`, so it loads on 0.2.1-rc.2 and later 0.2.x builds. on 0.3 and later it is skipped — the whole layer, not part of it — until a newer pstack ships:
 
 ```
-dsh: skipping profile bundle "dsh-pstack": Plugin dsh-pstack@0.15.36 is incompatible with dsh 0.3.0: requirements {"@deepseek-ai/dsh-skill":"^0.2.1-rc.2"}. Running it may cause crashes or data loss. ...
+dsh: skipping profile bundle "dsh-pstack": Plugin dsh-pstack@0.15.42 is incompatible with dsh 0.3.0: requirements {"@deepseek-ai/dsh-skill":"^0.2.1-rc.2"}. Running it may cause crashes or data loss. ...
 ```
 
 the problem is the version pair, not the install. upgrade pstack, or approve that exact pair and restart:
 
 ```bash
-dsh plugin --profile web allow-version dsh-pstack@0.15.36 --dsh-version 0.3.0 --accept-risk
+dsh plugin --profile web allow-version dsh-pstack@0.15.42 --dsh-version 0.3.0 --accept-risk
 dsh plugin --profile web version-exemptions
 ```
 
@@ -145,7 +145,7 @@ DSH attaches a skill to one message. pick `/poteto-mode` at the start of each ne
 
 ## skills
 
-[`/poteto-mode`](./.agents/skills/poteto-mode/SKILL.md) runs most of these for you when a step needs them (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop`, `no-comments`, `technical-writing`, `tdd`, and the principles). the table below is for when you want one directly:
+[`/poteto-mode`](./.agents/skills/poteto-mode/SKILL.md) runs most of these for you when a step needs them (`why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop`, `no-comments`, `technical-writing`, `tdd`, and the principles). the table below is for when you want one directly:
 
 ```
 /how do we cancel runs? do we have an n+1 when we look up every run to cancel?
@@ -163,9 +163,9 @@ DSH attaches a skill to one message. pick `/poteto-mode` at the start of each ne
 | [`/poteto-mode`](./.agents/skills/poteto-mode/SKILL.md) | default entry point for any non-trivial task. |
 | [`/poteto-help`](./.agents/skills/poteto-help/SKILL.md) | you're new to pstack, or unsure which skill, playbook, or principle fits. finds out what you're trying to do, answers that part, and hands you a prompt to type. runs only when you type `/poteto-help`. |
 | [`/in-your-own-words`](./.agents/skills/in-your-own-words/SKILL.md) | you want the agent to play back your goal and the problem before it starts. runs only when you type `/in-your-own-words`. |
-| [`/sharpen`](./.agents/skills/sharpen/SKILL.md) | you want a prompt made deeper, not bigger, before you send it: what a top professional would do that you didn't ask for, the raw material they'd start from, their methods and tools, and an outside check that the result is right. hands back the rewritten prompt and leaves your choices open. doesn't do the task. runs only when you type `/sharpen`. |
+| [`/sharpen`](./.agents/skills/sharpen/SKILL.md) | you want a prompt made deeper, not bigger, before you send it: what a top professional would do that you didn't ask for, the raw material they'd start from, their methods and tools, and an outside check that the result is right. hands back the rewritten prompt, which asks the agent to prototype any choice an experiment can settle and leaves product and preference choices to you. doesn't do the task. runs only when you type `/sharpen`. |
 | [`/how`](./.agents/skills/how/SKILL.md) | you want a walkthrough of how a subsystem works. |
-| [`/why`](./.agents/skills/why/SKILL.md) | you want to know why something was built this way. discovers available MCPs at run time and queries each evidence category in parallel (source control, issue tracker, long-form docs, real-time chat, infra observability, error tracking, analytics warehouse). |
+| [`/why`](./.agents/skills/why/SKILL.md) | you want to know why something was built this way. answers from the record, not the code: the commits and pr discussions that introduced it and each later change, and other sources when that trail is thin. cites what the authors wrote, marks its own inferences, and says what the record does not answer. |
 | [`/recall`](./.agents/skills/recall/SKILL.md) | you're starting or resuming work and want your recent context on a topic rebuilt from your own chat history and the shared record, handed back as a tight current-state brief. |
 | [`/ketchup`](./.agents/skills/ketchup/SKILL.md) | you want what changed in this chat since your last message, in plain words and small visuals, with every item waiting on you listed and decidable from the reply alone, even when that makes the reply long. |
 | [`/ketchup-video`](./.agents/skills/ketchup-video/SKILL.md) | you want the `/ketchup` catch-up as a short subtitled video of slides, with the calls waiting on you as text under it. |
@@ -315,7 +315,7 @@ type [`/automate-me`](./.agents/skills/automate-me/SKILL.md). it mines your rece
 
 models are configurable too. type [`/setup-pstack`](./.agents/skills/setup-pstack/SKILL.md). it reads the routes DSH authorizes and writes `~/.agents/pstack-models.md`, mapping each role (code, judgment, the review panels) to a route and effort. every skill reads that file when it spawns a subagent and falls back to `inherit` when the file or line is absent, so you override only what you want.
 
-when a default changes, a rule written before the change still pins the old route. delete those role lines, or delete the file, then run `/setup-pstack` again. a rerun keeps any role whose route differs from the default.
+when a default changes, a file written before the change still pins the old route until you run `/setup-pstack` again. that run replaces the old defaults it recognizes and keeps any other role whose route differs from the default. to drop a pin it does not recognize, delete that role's line or the file first.
 
 ## automations
 

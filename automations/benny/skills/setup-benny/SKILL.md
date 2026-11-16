@@ -35,7 +35,6 @@ Make pstack available to the target repository. Either install the `dsh-pstack` 
 
 Start a fresh agent rooted there. Verify that these shared pstack skills resolve from project scope:
 
-- `how`
 - `why`
 - `tdd`
 - `unslop`
