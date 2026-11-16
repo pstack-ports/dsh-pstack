@@ -28,23 +28,23 @@ The default role table is step 5's shape. If `~/.agents/pstack-models.md` exists
 A file without the `# defaults: 2` line comes from an older setup. That setup wrote a line for every role, so some of its values are old defaults, not choices. The old default on every role was `inherit`. Before step 3, replace these values:
 
 - Drop every retired-role line, including `how explorer`, `how explainer`, `why investigators`, and `why synthesizer`.
-- A value of `inherit` on a role that step 5 still lists is the old default. The new default is still `inherit`, so leave it.
-- A panel value (`arena runners`, `arena cross-judge pool`, `architect runners`, `interrogate reviewers`) that is exactly `inherit` is the old one-seat default. Leave it unless step 3 picks panel routes. A panel list that names any real route is the user's choice and stays.
+- A value of `inherit` on a non-panel role that step 5 still lists is the old default. The new default is still `inherit`, so leave it.
+- On a panel role (`arena runners`, `arena cross-judge pool`, `architect runners`, `interrogate reviewers`), a value that is exactly `inherit` is the old one-seat default. Replace it with `inherit, inherit, inherit`. A panel list that names any real route stays.
 
-Every other value is the user's choice and stays. Tell the user which retired lines you dropped and which values you replaced. To drop a pin this step does not recognize, delete that role's line or the file first.
+Every other value is the user's choice and stays. Tell the user which retired lines you dropped and which values you replaced.
 
 ### 3. Budget, map, and confirm
 
 **(a) Ask for a budget.** Use `ask_user_question` with these four options. Name the current budget when the file records one. With no file, say `large` is the default.
 
-- `unlimited - the top reported effort`
-- `large - one step down`
-- `medium - two steps down`
-- `small - three steps down`
+- `unlimited - one step above the role's default`
+- `large - the role's default`
+- `medium - one step below the role's default`
+- `small - two steps below the role's default`
 
-**(b) Apply it.** Rank the efforts `list_subagent_models` reports for that exact route from highest to lowest. `unlimited` is the top reported effort, `large` is one step down, `medium` is two steps down, and `small` is three steps down. Set every non-`inherit` route's effort token to that rank. If the ladder is shorter than the step, use its lowest effort. If the route has no efforts at all, leave it bare. `inherit` does not change.
+**(b) Apply it.** For each role, start from that role's own default effort. `large` keeps it. `unlimited` raises it one step, `medium` lowers it one step, and `small` lowers it two steps, on the efforts `list_subagent_models` reports for that exact route, from highest to lowest. Clamp to that route's reported effort range. Set every non-`inherit` route's effort token, panel entries included, to the result. If the route has no efforts at all, leave it bare. `inherit` does not change.
 
-**(c) Pick two base routes.** Ask which detected route code delegates should use and which route judgment and prose should use. Offer `inherit` and every detected route. The defaults are `inherit` for both, which means "let the parent model do it". Panels use the two base routes as their starting seats.
+**(c) Start three panel seats.** Ask which detected route code delegates should use and which route judgment and prose should use. Offer `inherit` and every detected route. The defaults are `inherit` for both, which means "let the parent model do it". The four panel roles start as three `inherit` seats.
 
 **(d) Show the roles and confirm.** Show every role with its route or list of routes. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles. For panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) the value is a list, and one subagent runs per entry, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena runs one judge. It tries only values from a vendor other than the parent's, in list order, so order it by preference. A vendor is the route's provider. An `inherit` value never judges. `swarm workers` is the default route for every worker unless a race or comparison assigns another route per arm.
 
@@ -75,11 +75,11 @@ judgment and prose: inherit
 hardest tasks: inherit
 reflect tooling: inherit
 reflect judgment, divergent, synthesizer: inherit
-arena runners: inherit
-arena cross-judge pool: inherit
+arena runners: inherit, inherit, inherit
+arena cross-judge pool: inherit, inherit, inherit
 swarm workers: inherit
-architect runners: inherit
-interrogate reviewers: inherit
+architect runners: inherit, inherit, inherit
+interrogate reviewers: inherit, inherit, inherit
 ```
 
 ### 6. Confirm
