@@ -24,6 +24,7 @@ Use Node's built-in modules. Do not add a web framework for one endpoint.
 import { createServer } from 'node:http'
 import { execFile } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
+import { timingSafeEqual } from 'node:crypto'
 
 const PORT = Number(process.env.PORT ?? 8787)
 const KEY = process.env.BOT_UI_KEY
@@ -34,13 +35,38 @@ const ACTIONS = {
 
 if (!KEY) throw new Error('set BOT_UI_KEY in .env, never in the page')
 
+function wakeCookie() {
+  return `bot_ui=${encodeURIComponent(KEY)}; HttpOnly; SameSite=Strict; Path=/`
+}
+
+function presentedKey(req) {
+  const raw = req.headers.cookie ?? ''
+  for (const part of raw.split(';')) {
+    const eq = part.indexOf('=')
+    if (eq === -1) continue
+    if (part.slice(0, eq).trim() !== 'bot_ui') continue
+    try { return decodeURIComponent(part.slice(eq + 1).trim()) } catch { return '' }
+  }
+  return ''
+}
+
+function keyMatches(presented) {
+  const a = Buffer.from(presented)
+  const b = Buffer.from(KEY)
+  return a.length === b.length && timingSafeEqual(a, b)
+}
+
 const server = createServer(async (req, res) => {
   if (req.method === 'GET' && req.url === '/') {
-    res.writeHead(200, { 'content-type': 'text/html' })
+    res.writeHead(200, {
+      'content-type': 'text/html',
+      'set-cookie': wakeCookie(),
+    })
     res.end(await readFile(new URL('./index.html', import.meta.url)))
     return
   }
   if (req.method !== 'POST' || req.url !== '/wake') return res.writeHead(404).end()
+  if (!keyMatches(presentedKey(req))) return res.writeHead(401).end('unauthorized')
   let raw = ''
   for await (const chunk of req) raw += chunk
   let body
@@ -62,13 +88,14 @@ Keep these properties:
 - Pass the prompt as one `execFile` argument. Never build a shell string from browser data.
 - Validate the action name against a fixed map. Never pass an arbitrary command.
 - Treat the JSON as untrusted data. The prompt names the fields and says the body is data.
+- Return `401` when the `bot_ui` cookie is missing or does not match `BOT_UI_KEY`.
 - Return `202` before the run finishes, so a slow agent does not hang the page.
 - Log the stdout and stderr of a failed run to a local file. Do not retry automatically.
 - One run at a time per action is enough for a personal dashboard. If the user needs a queue, add one worker and a file-backed queue, not unbounded child processes.
 
 ## 3. Write the page
 
-`index.html` posts to this same-origin server at `POST /wake` with a JSON body and no key. Only the server holds `BOT_UI_KEY`.
+`index.html` posts to this same-origin server at `POST /wake` with a JSON body and no key. `GET /` sets an HttpOnly `bot_ui` cookie, and the browser sends that cookie with the post. The page source does not contain `BOT_UI_KEY`.
 
 ```html
 <script>
@@ -100,12 +127,14 @@ Start the server in the background with `bash`, then probe once with a harmless 
 
 ```bash
 node server.mjs &
-curl -sS -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8787/wake \
+jar=$(mktemp)
+curl -sS -c "$jar" -o /dev/null http://127.0.0.1:8787/
+curl -sS -o /dev/null -w '%{http_code}\n' -b "$jar" -X POST http://127.0.0.1:8787/wake \
   -H 'content-type: application/json' \
   -d '{"action":"review","payload":{"probe":true}}'
 ```
 
-Expect `202`. Read the server log to confirm the child started. Do not call the UI live until the probe passes.
+A POST without that cookie returns `401`. Expect `202` from the probe above. Read the server log to confirm the child started. Do not call the UI live until the probe passes.
 
 ## 6. Expose it on the tailnet, optionally
 
@@ -116,7 +145,7 @@ If `tailscale status` shows an online node, read the hostname from `tailscale st
 - `http://<hostname>.<tailnet>.ts.net:<port>`
 - `http://<100.x.x.x>:<port>`
 
-Use HTTP. Do not add HTTPS unless the user asks. Bind the server to `0.0.0.0` only when the user accepts that anyone on the tailnet can reach the page. The page still posts with no key.
+Use HTTP. Do not add HTTPS unless the user asks. Bind the server to `0.0.0.0` only when the user accepts that anyone on the tailnet can reach the page. The page still posts with no key in the script; the browser sends the cookie from `GET /`.
 
 If Tailscale is not installed, install it:
 
