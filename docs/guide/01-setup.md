@@ -34,7 +34,7 @@ DSH only lets a subagent pick a model when you turn on **Plugins â†’ Subagent â†
 
 With model selection off, every role uses `inherit`, which means the child keeps the parent model. That still gives you independent contexts and the full workflow. Turn model selection on when you want a review panel or a code delegate on a different route.
 
-The budget moves each role from its own default. `large` keeps that default. `unlimited` raises it one reported route effort step, `medium` lowers it one, and `small` lowers it two, clamped to that route's reported effort range. `inherit` does not change. The exact effort ids come from `list_subagent_models` for that route.
+The defaults are the same as the `large` budget. Code, prose, and judgment run on Opus 5.5 at `xhigh` reasoning, and the review panels and swarm workers run at `high`. No role runs above `xhigh`. Outside a review panel, Fable 5.2 runs only when you name it for a task or after two Opus 5.5 runs of the same brief fail their check. `medium` lowers each role one level and `small` lowers it two, and both spend fewer tokens. With model selection off, every role stays `inherit`. The exact effort ids come from `list_subagent_models` for that route.
 
 You only override what you care about. A role with no line in the file keeps `inherit`. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose route differs from `inherit`. When a default changes, a file written before the change still pins the old route until you run `/setup-pstack` again. That run replaces the old defaults it recognizes, tells you which, and keeps your other choices. To drop a pin it does not recognize, delete that role's line or the file first.
 
@@ -67,7 +67,7 @@ Pick something real but small, and describe it the way you'd describe it to a co
 /poteto-mode add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
-Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt.
 
 From here you can type normal follow-ups. DSH attaches a skill to one message, so pick `/poteto-mode` again when you start a new task. For a long run that should keep going without new messages, create a DSH goal with `create_goal` and let the agent work toward the predicate.
 
