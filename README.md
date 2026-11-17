@@ -67,6 +67,8 @@ two things that look like bugs but are not:
 - DSH reads `package.json` — `dsh.bundle.patch`, `icon`, and `engines.dsh` when present. it does not read `plugin.json`; that manifest is for other agent-plugin ecosystems.
 - the `@deepseek-ai/*` peers come from the DSH installation, not from this package, so install it with `dsh plugin add`. a standalone `npm install` will not resolve them.
 
+the packaging limits that produce a **Package metadata error** — including the 256 KiB icon ceiling — are in [COMPATIBILITY.md](./COMPATIBILITY.md).
+
 ## get started
 
 two steps:

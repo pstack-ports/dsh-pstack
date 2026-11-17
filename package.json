@@ -29,6 +29,7 @@
     "cordis.patch.yml",
     "plugin.json",
     "AGENTS.md",
+    "COMPATIBILITY.md",
     "README.md",
     "LICENSE"
   ],

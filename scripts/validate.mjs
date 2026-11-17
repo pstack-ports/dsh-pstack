@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { dirname, join, relative, resolve, sep } from 'node:path'
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs'
+import { dirname, extname, isAbsolute, join, relative, resolve, sep, win32 } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { parse as parseYaml } from 'yaml'
@@ -99,7 +99,7 @@ for (const field of ['name', 'version', 'description']) {
 if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') {
   fail('package.json must declare dsh.bundle.patch = ./cordis.patch.yml')
 }
-for (const required of ['lib', '.agents', 'cordis.patch.yml', 'plugin.json', 'AGENTS.md', 'README.md', 'LICENSE']) {
+for (const required of ['lib', '.agents', 'cordis.patch.yml', 'plugin.json', 'AGENTS.md', 'COMPATIBILITY.md', 'README.md', 'LICENSE']) {
   if (!(manifest.files ?? []).includes(required)) fail(`package.json files must include "${required}"`)
 }
 const plugin = JSON.parse(readFileSync(join(ROOT, 'plugin.json'), 'utf8'))
@@ -123,6 +123,67 @@ else {
   }
 }
 
+// 3b. The declared icon stays inside the DSH metadata limits.
+// DSH reads package.json without evaluating the plugin; an oversized icon
+// becomes "Package metadata error: ... icon exceeds 256 KiB" in the plugin row.
+const MAX_ICON_BYTES = 256 * 1024
+const ICON_EXTENSIONS = new Set(['.svg', '.png', '.jpg', '.jpeg', '.webp'])
+
+function iconProblem(icon) {
+  if (typeof icon !== 'string' || icon.trim() === '') {
+    return 'package.json must declare a non-empty "icon" path so DSH can render the plugin row'
+  }
+  if (isAbsolute(icon) || win32.isAbsolute(icon) || /^[A-Za-z][A-Za-z\d+.-]*:/u.test(icon)) {
+    return `package.json icon "${icon}" must be a relative file path`
+  }
+  const declared = join(ROOT, icon)
+  if (!existsSync(declared)) return `package.json icon "${icon}" does not exist`
+  const file = realpathSync(declared)
+  const local = relative(realpathSync(ROOT), file)
+  if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
+    return `package.json icon "${icon}" must remain inside the package`
+  }
+  const extension = extname(file).toLowerCase()
+  if (!ICON_EXTENSIONS.has(extension)) {
+    return `package.json icon "${icon}" must be SVG, PNG, JPEG, or WebP`
+  }
+  const stat = statSync(file)
+  if (!stat.isFile()) return `package.json icon "${icon}" must be a regular file`
+  if (stat.size > MAX_ICON_BYTES) {
+    return `package.json icon "${icon}" is ${stat.size} bytes and exceeds 256 KiB (${MAX_ICON_BYTES} bytes); DSH will reject it. Re-encode the image.`
+  }
+  const bytes = readFileSync(file)
+  if (bytes.length > MAX_ICON_BYTES) {
+    return `package.json icon "${icon}" is ${bytes.length} bytes and exceeds 256 KiB (${MAX_ICON_BYTES} bytes); DSH will reject it. Re-encode the image.`
+  }
+  const head = bytes.subarray(0, 512)
+  const isJpeg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff
+  let valid = false
+  if (extension === '.png') {
+    valid = head.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+  } else if (extension === '.jpg' || extension === '.jpeg') {
+    valid = isJpeg
+  } else if (extension === '.webp') {
+    valid = head.subarray(0, 4).toString('ascii') === 'RIFF'
+      && head.subarray(8, 12).toString('ascii') === 'WEBP'
+  } else {
+    valid = /<svg[\s>]/u.test(bytes.toString('utf8'))
+  }
+  if (!valid) {
+    return `package.json icon "${icon}" does not contain ${extension.slice(1).toUpperCase()} data`
+  }
+  const packed = relative(ROOT, file).split(sep).join('/')
+  const covered = (manifest.files ?? []).some((entry) => {
+    const path = entry.replace(/^\.\//u, '').replace(/\/$/u, '')
+    return packed === path || packed.startsWith(`${path}/`)
+  })
+  if (!covered) return `package.json files must include icon "${icon}"`
+  return undefined
+}
+
+const iconFailure = iconProblem(manifest.icon)
+if (iconFailure !== undefined) fail(iconFailure)
+
 // 4. Relative Markdown links resolve.
 function checkLinks(file) {
   const raw = readFileSync(file, 'utf8')
@@ -139,7 +200,7 @@ function checkLinks(file) {
     }
   }
 }
-for (const file of [join(ROOT, 'README.md')]) checkLinks(file)
+for (const file of [join(ROOT, 'README.md'), join(ROOT, 'COMPATIBILITY.md')]) checkLinks(file)
 walk(join(ROOT, 'docs'), (file) => {
   if (file.endsWith('.md')) checkLinks(file)
 })
@@ -180,4 +241,4 @@ if (problems.length > 0) {
   for (const problem of problems) console.error(`ERROR: ${problem}`)
   process.exit(1)
 }
-console.log(`Validated ${candidates.length} skills, ${diskPlaybooks.size} playbooks, ${indexedPrinciples.size} principles, and the DSH bundle manifest.`)
+console.log(`Validated ${candidates.length} skills, ${diskPlaybooks.size} playbooks, ${indexedPrinciples.size} principles, the DSH bundle manifest, and the plugin icon.`)
