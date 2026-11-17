@@ -19,7 +19,7 @@ This repository is the DeepSeek Harness port of pstack 0.15.43, pinned to https:
 - Do not reintroduce Cursor or Antigravity fields such as `subagent_type`, `environment`, `Workspace`, `TypeName`, `model` slugs, `~/.cursor`, or `~/.gemini`.
 - Route guidance lives in `~/.agents/pstack-models.md`. A missing file or line means `inherit`. Pass `provider`, `model`, and `reasoning_effort` only when the `subagent` tool exposes them.
 - DSH subagents share this machine. Isolate writers with a git worktree passed as `cwd`.
-- When porting upstream, re-encode `assets/logo.png` instead of copying it. DSH rejects icons over 256 KiB, and `npm test` enforces the metadata limits in `COMPATIBILITY.md`.
+- When porting upstream, re-encode the icon instead of copying `assets/logo.png`. DSH rejects icons over 256 KiB. `COMPATIBILITY.md` records the limit and the measured pixel delta, and `npm test` enforces the limit.
 
 ## Validate
 
