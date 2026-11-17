@@ -123,6 +123,9 @@ else {
   }
 }
 
+// 3b. The declared icon stays inside the DSH metadata limits.
+// DSH reads package.json without evaluating the plugin; an oversized icon
+// becomes "Package metadata error: ... icon exceeds 256 KiB" in the plugin row.
 const MAX_ICON_BYTES = 256 * 1024
 const ICON_EXTENSIONS = new Set(['.svg', '.png', '.jpg', '.jpeg', '.webp'])
 
