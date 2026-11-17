@@ -46,7 +46,7 @@ A pstack skill that names another pstack skill by name (`how`, `why`, `architect
 | `model: <slug>` | Pass `provider`, `model`, and `reasoning_effort` only when the `subagent` tool exposes them. Otherwise omit them. |
 | `subagent_type: "research"` | A `subagent` whose prompt says it is read-only and must not write. |
 
-`maxDepth` defaults to `1`, so a child cannot delegate further. Raise it in **Plugins → Subagent** for orchestrate, which nests to depth 3. `maxActiveSubagents` defaults to `8`; raise it for a large swarm.
+`maxDepth` defaults to `1`, so a child cannot delegate further. Raise it in **Plugins → Subagent** when a run nests workers under owners, such as autopilot. `maxActiveSubagents` defaults to `8`; raise it for a large swarm.
 
 ## Models and routes
 
@@ -67,7 +67,7 @@ DSH's setup skill differs from Cursor's in three ways:
 
 - **Detect.** Use `list_subagent_models` if it exists. If it does not, say model selection is off and offer to continue with `inherit` for every role.
 - **Write.** Write `~/.agents/pstack-models.md` as plain Markdown. DSH does not apply it automatically, so a skill must read it before a spawn.
-- **Limits.** Check `maxDepth` and `maxActiveSubagents` in Plugins → Subagent. Raise `maxDepth` to at least 3 for orchestrate, and size `maxActiveSubagents` for the swarm or queue.
+- **Limits.** Check `maxDepth` and `maxActiveSubagents` in Plugins → Subagent. Raise `maxDepth` above 1 when a run nests workers under owners, and size `maxActiveSubagents` for the swarm or queue.
 
 ## Paths
 

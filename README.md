@@ -50,13 +50,13 @@ do not copy a parent directory that contains all the skills. DSH discovers a ski
 DSH mounts a bundle only when the plugin's `@deepseek-ai/dsh*` peer requirements match the running runtime. this package peers on `@deepseek-ai/dsh-skill@^0.2.1-rc.2`, so it loads on 0.2.1-rc.2 and later 0.2.x builds. on 0.3 and later it is skipped — the whole layer, not part of it — until a newer pstack ships:
 
 ```
-dsh: skipping profile bundle "dsh-pstack": Plugin dsh-pstack@0.15.42 is incompatible with dsh 0.3.0: requirements {"@deepseek-ai/dsh-skill":"^0.2.1-rc.2"}. Running it may cause crashes or data loss. ...
+dsh: skipping profile bundle "dsh-pstack": Plugin dsh-pstack@0.15.43 is incompatible with dsh 0.3.0: requirements {"@deepseek-ai/dsh-skill":"^0.2.1-rc.2"}. Running it may cause crashes or data loss. ...
 ```
 
 the problem is the version pair, not the install. upgrade pstack, or approve that exact pair and restart:
 
 ```bash
-dsh plugin --profile web allow-version dsh-pstack@0.15.42 --dsh-version 0.3.0 --accept-risk
+dsh plugin --profile web allow-version dsh-pstack@0.15.43 --dsh-version 0.3.0 --accept-risk
 dsh plugin --profile web version-exemptions
 ```
 
@@ -76,7 +76,7 @@ two steps:
 
 new here? the [pstack guide](./docs/guide/README.md) walks you through a first real task, from setup and prompting through verification and overnight runs. stuck, or unsure which skill fits? ask [`/poteto-help`](./.agents/skills/poteto-help/SKILL.md).
 
-that's it. the other skills are situational, and the mode skill uses them for you as needed. out of the box every role inherits the parent model. turn on **Plugins → Subagent → models agents may choose**, add the exact routes you want, and rerun [`/setup-pstack`](./.agents/skills/setup-pstack/SKILL.md) to split code, judgment, and the review panels across them.
+that's it. the other skills are situational, and the mode skill uses them for you as needed. out of the box, code delegates (feature, refactoring, bug fix, perf, hillclimb), prose, and judgment go to opus 5.5 at xhigh, and no role runs above xhigh. outside a review panel, fable 5.2 runs only when you name it or after two opus 5.5 runs of the same brief fail. the default panel is fable 5.2 / opus 5.5 / gemini 4 carbon. with model selection off, every role inherits the parent model. turn on **Plugins → Subagent → models agents may choose**, add the exact routes you want, and rerun [`/setup-pstack`](./.agents/skills/setup-pstack/SKILL.md) to pin those routes.
 
 ## usage
 
@@ -86,7 +86,7 @@ pick `/poteto-mode` from the `/` menu before you type your task, so DSH attaches
 
 ### just use [`/poteto-mode`](./.agents/skills/poteto-mode/SKILL.md)
 
-this skill is the main shortcut. i use it whenever i need the agent to do rigorous engineering work. it comes with twenty-three playbooks:
+this skill is the main shortcut. i use it whenever i need the agent to do rigorous engineering work. it comes with twenty-two playbooks:
 
 ```
 /poteto-mode this pr has a subtle bug where the scroll drifts every 750ms even when idle. repro
@@ -99,7 +99,7 @@ morning.
 ```
 
 <details>
-<summary>the twenty-three playbooks</summary>
+<summary>the twenty-two playbooks</summary>
 
 | playbook | for |
 |---|---|
@@ -118,7 +118,6 @@ morning.
 | [babysit](./.agents/skills/poteto-mode/playbooks/babysit.md) | drive a pr or a stack to merge-ready: conflicts, review threads, ci. |
 | [shipping](./.agents/skills/poteto-mode/playbooks/shipping.md) | independently verify a green stack, then land the contiguous verified run bottom-up through github by default or origin when available. |
 | [autonomous run](./.agents/skills/poteto-mode/playbooks/autonomous-run.md) | drive a long task to completion without stopping. |
-| [orchestrate](./.agents/skills/poteto-mode/playbooks/orchestrate.md) | a standing project handed to one coordinator chat: multi-day, many stacked prs, fleets of subagents. |
 | [autopilot-full](./.agents/skills/poteto-mode/playbooks/autopilot-full.md) | run independent prs to merged with one owner per pr. a swarm verifies each code-ready head, and every later change to the patch gets a fresh check. |
 | [autopilot-stack](./.agents/skills/poteto-mode/playbooks/autopilot-stack.md) | autopilot-full without the merge. build and verify prs for the operator to review and land, stacking a pr only on a pr it builds on. |
 | [session pickup](./.agents/skills/poteto-mode/playbooks/session-pickup.md) | resume or take over a prior agent's in-flight work. |
