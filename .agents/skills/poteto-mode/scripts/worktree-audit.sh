@@ -69,8 +69,40 @@ elif raw=$(gh pr list --author "@me" --state all --limit 1000 \
 fi
 [ -s "$prs" ] || echo "[]" > "$prs"
 
-# DSH session logs: $DSH_HOME/sessions/<projectKey>/<session-id>/session*.jsonl or session*.jsonl.zstd.
-transcripts="${DSH_HOME:-$HOME/.dsh}/sessions"
+# DSH session logs for the main worktree only:
+# $DSH_HOME/sessions/<projectKey>/<session-id>/session*.jsonl or session*.jsonl.zstd.
+# Same projectKey as session-log.sh (@deepseek-ai/dsh-session-persistence-jsonl):
+# separators (/ \ :) become "-", runs collapse to one "-", a code unit outside
+# [A-Za-z0-9._-] or "~" becomes "~" plus 4 uppercase hex, leading hyphens are
+# stripped (empty becomes "root"), then cut at 251 chars and wrapped in "--".
+# Searching every project under sessions/ would let LAST_CHAT come from another repo.
+project_key() {
+	PROJECT_KEY_CWD="$1" node -e '
+const cwd = process.env.PROJECT_KEY_CWD ?? ""
+if (cwd.length === 0) throw new Error("empty cwd")
+let readable = ""
+let separatorRun = false
+for (let i = 0; i < cwd.length; i++) {
+  const code = cwd.charCodeAt(i)
+  const ch = String.fromCharCode(code)
+  if (ch === "/" || ch === "\\" || ch === ":") {
+    if (!separatorRun) readable += "-"
+    separatorRun = true
+  } else if (ch !== "~" && /^[A-Za-z0-9._-]$/.test(ch)) {
+    readable += ch
+    separatorRun = false
+  } else {
+    readable += "~" + code.toString(16).toUpperCase().padStart(4, "0")
+    separatorRun = false
+  }
+}
+const body = (readable.replace(/^-+/, "") || "root").slice(0, 251)
+process.stdout.write("--" + body + "--")
+'
+}
+key=$(project_key "$main_wt") || { echo "error: could not encode the main worktree project key" >&2; exit 1; }
+[ -n "$key" ] || { echo "error: empty project key for $main_wt" >&2; exit 1; }
+transcripts="${DSH_HOME:-$HOME/.dsh}/sessions/$key"
 
 # Same reader as session-log.sh: zstd -dc for .zstd, cat otherwise.
 read_session_log() {
