@@ -11,7 +11,7 @@
     "url": "git+https://github.com/pstack-ports/dsh-pstack.git"
   },
   "license": "MIT",
-  "icon": "./assets/logo.png",
+  "icon": "./assets/logo.webp",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -29,6 +29,7 @@
     "cordis.patch.yml",
     "plugin.json",
     "AGENTS.md",
+    "COMPATIBILITY.md",
     "README.md",
     "LICENSE"
   ],
