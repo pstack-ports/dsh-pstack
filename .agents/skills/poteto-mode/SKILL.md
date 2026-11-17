@@ -108,25 +108,4 @@ Write short declarative sentences with no long dash and no colon as a connector.
 
 Match the task to a playbook and open its steps at `playbooks/<title>.md`, with the title in kebab case. Copy its steps into `todo_write` first. Large, cross-cutting, or unattended work, or a task no playbook fits, routes to the **figure-it-out** skill.
 
-- **Investigation.**
-- **Bug fix.**
-- **Perf issue.**
-- **Hillclimb.**
-- **Runtime forensics.**
-- **Trace forensics.**
-- **Feature.**
-- **Refactoring.**
-- **Prototype.**
-- **Visual parity.**
-- **Authoring a skill.**
-- **Eval.**
-- **Babysit.**
-- **Shipping.**
-- **Autonomous run.**
-- **Autopilot-full.**
-- **Autopilot-stack.**
-- **Session pickup.**
-- **Pause safely.**
-- **Multi-phase plan.**
-- **Worktree cleanup.**
-- **Opening a PR.**
+Investigation, Bug fix, Perf issue, Hillclimb, Runtime forensics, Trace forensics, Feature, Refactoring, Prototype, Visual parity, Authoring a skill, Eval, Babysit, Shipping, Autonomous run, Autopilot-full, Autopilot-stack, Session pickup, Pause safely, Multi-phase plan, Worktree cleanup, Opening a PR.

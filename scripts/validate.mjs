@@ -72,6 +72,13 @@ const indexedPlaybooks = new Set()
 for (const line of playbooksSection.split(/\r?\n/)) {
   const match = line.match(/^- \*\*([^*]+?)\.\*\*(?:.*?File: `playbooks\/([^`]+)`)?/)
   if (match) indexedPlaybooks.add(match[2] ?? `${toKebab(match[1])}.md`)
+  const list = line.match(/^([A-Z][^.]*(?:,[^.]*)+)\.$/)
+  if (list) {
+    for (const title of list[1].split(',')) {
+      const name = title.trim()
+      if (name !== '') indexedPlaybooks.add(`${toKebab(name)}.md`)
+    }
+  }
 }
 const diskPlaybooks = new Set(readdirSync(join(SKILLS_DIR, 'poteto-mode', 'playbooks'))
   .filter((file) => file.endsWith('.md')))
