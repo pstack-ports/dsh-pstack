@@ -50,13 +50,13 @@ do not copy a parent directory that contains all the skills. DSH discovers a ski
 DSH mounts a bundle only when the plugin's `@deepseek-ai/dsh*` peer requirements match the running runtime. this package peers on `@deepseek-ai/dsh-skill@^0.2.1-rc.2`, so it loads on 0.2.1-rc.2 and later 0.2.x builds. on 0.3 and later it is skipped — the whole layer, not part of it — until a newer pstack ships:
 
 ```
-dsh: skipping profile bundle "dsh-pstack": Plugin dsh-pstack@0.15.43 is incompatible with dsh 0.3.0: requirements {"@deepseek-ai/dsh-skill":"^0.2.1-rc.2"}. Running it may cause crashes or data loss. ...
+dsh: skipping profile bundle "dsh-pstack": Plugin dsh-pstack@0.15.46 is incompatible with dsh 0.3.0: requirements {"@deepseek-ai/dsh-skill":"^0.2.1-rc.2"}. Running it may cause crashes or data loss. ...
 ```
 
 the problem is the version pair, not the install. upgrade pstack, or approve that exact pair and restart:
 
 ```bash
-dsh plugin --profile web allow-version dsh-pstack@0.15.43 --dsh-version 0.3.0 --accept-risk
+dsh plugin --profile web allow-version dsh-pstack@0.15.46 --dsh-version 0.3.0 --accept-risk
 dsh plugin --profile web version-exemptions
 ```
 
@@ -78,7 +78,7 @@ two steps:
 
 new here? the [pstack guide](./docs/guide/README.md) walks you through a first real task, from setup and prompting through verification and overnight runs. stuck, or unsure which skill fits? ask [`/poteto-help`](./.agents/skills/poteto-help/SKILL.md).
 
-that's it. the other skills are situational, and the mode skill uses them for you as needed. out of the box, code delegates (feature, refactoring, bug fix, perf, hillclimb), prose, and judgment go to opus 5.5 at xhigh, and no role runs above xhigh. outside a review panel, fable 5.2 runs only when you name it or after two opus 5.5 runs of the same brief fail. the default panel is fable 5.2 / opus 5.5 / gemini 4 carbon. with model selection off, every role inherits the parent model. turn on **Plugins → Subagent → models agents may choose**, add the exact routes you want, and rerun [`/setup-pstack`](./.agents/skills/setup-pstack/SKILL.md) to pin those routes.
+that's it. the other skills are situational, and the mode skill uses them for you as needed. out of the box, code delegates (feature, refactoring, bug fix, perf, hillclimb), prose, and judgment go to opus 5.5 at xhigh, and no role runs above xhigh. outside a review panel, fable 5.2 runs only when you name it or after two opus 5.5 runs of the same brief fail. the default panel is fable 5.2 / opus 5.5 / gemini 4 neon. with model selection off, every role inherits the parent model. turn on **Plugins → Subagent → models agents may choose**, add the exact routes you want, and rerun [`/setup-pstack`](./.agents/skills/setup-pstack/SKILL.md) to pin those routes.
 
 ## usage
 
