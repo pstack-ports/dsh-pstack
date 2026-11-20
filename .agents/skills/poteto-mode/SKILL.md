@@ -90,11 +90,11 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 - Code, prose, and judgment: Opus 5.5 at xhigh, fast.
 - Trivial mechanical edits: Opus 5.5 at high, fast.
-- Diverse review and design panels: one runner each on Fable 5.2 at high, Opus 5.5 at high, fast, and Gemini 4 Carbon at high.
+- Diverse review and design panels: one runner each on Fable 5.2 at high, Opus 5.5 at high, fast, and Gemini 4 Neon at xhigh.
 
 **Fable 5.2 is an exception.** It runs outside a panel only when the user named it for this task or two Opus 5.5 xhigh runs of the same brief failed its check. Say which. Difficulty alone never qualifies.
 
-**Match the route to the job.** Start from the role's line or default, keep its family, and set the level the job needs. The `/setup-pstack` budget sets each role's starting level. Panel seats keep their listed level. Raise any other role one step, up to xhigh, for the hardest or subtlest work, lower it one step for judgment, and two or more steps for routine work. No role runs above xhigh. Opus 5.5 always runs its fast variant. Verification always runs on the `swarm workers` route, Opus 5.5 at high, fast, by default. A Gemini seat never runs above Gemini 4 Carbon at high, its top. If the `subagent` tool rejects a route, never pass it again. Fall back to the role's line or default, then the calling skill's fallback, then the closest valid route of the same family, then omit `provider`, `model`, and `reasoning_effort`. Say so.
+**Match the route to the job.** Start from the role's line or default, keep its family, and set the level the job needs. The `/setup-pstack` budget sets each role's starting level. Panel seats keep their listed level. Raise any other role one step, up to xhigh, for the hardest or subtlest work, lower it one step for judgment, and two or more steps for routine work. No role runs above xhigh. Opus 5.5 always runs its fast variant. Verification always runs on the `swarm workers` route, Opus 5.5 at high, fast, by default. A Gemini seat runs at Gemini 4 Neon at xhigh unless its line names another level. If the `subagent` tool rejects a route, never pass it again. Fall back to the role's line or default, then the calling skill's fallback, then the closest valid route of the same family, then omit `provider`, `model`, and `reasoning_effort`. Say so.
 
 You own every subagent's work. Review the diff and write your own summary. A second opinion is the same prompt on another vendor's model.
 
